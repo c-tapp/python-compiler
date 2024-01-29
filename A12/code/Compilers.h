@@ -2,7 +2,7 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2023
-* Author: TO_DO
+* Author: Colin Tapp, Henry Forget
 * Professors: Paulo Sousa
 ************************************************************
 =---------------------------------------=
@@ -62,14 +62,12 @@
  * ............................................................................
  */
 
-/* TO_DO: Adjust your language (cannot be "Sofia") */
-
 /* Language name */
-#define STR_LANGNAME	"Sofia"
+#define STR_LANGNAME	"Mouse"
 
-/* Logical constants - adapt for your language */
-#define SOFIA_TRUE  1
-#define SOFIA_FALSE 0
+/* Logical constants */
+#define MOUSE_TRUE  1
+#define MOUSE_FALSE 0
 
 /*
 ------------------------------------------------------------
@@ -79,19 +77,17 @@ NOTE: Some types may not be directly used by your language,
 ------------------------------------------------------------
 */
 
+typedef char			mouse_char;
+typedef char* mouse_string;
+typedef int				mouse_intg;
+typedef float			mouse_real;
+typedef void			mouse_void;
 
-/* TO_DO: Define your typedefs */
-typedef char			sofia_char;
-typedef char* sofia_string;
-typedef int				sofia_intg;
-typedef float			sofia_real;
-typedef void			sofia_void;
+typedef unsigned char	mouse_boln;
+typedef unsigned char	mouse_byte;
 
-typedef unsigned char	sofia_boln;
-typedef unsigned char	sofia_byte;
-
-typedef long			sofia_long;
-typedef double			sofia_doub;
+typedef long			mouse_long;
+typedef double			mouse_doub;
 
 /*
 ------------------------------------------------------------
@@ -113,11 +109,11 @@ Main functions signatures
 (Code will be updated during next assignments)
 ------------------------------------------------------------
 */
-sofia_intg mainReader(sofia_intg argc, sofia_string* argv);
+mouse_intg mainReader(mouse_intg argc, mouse_string* argv);
 
 /* 
 TO_DO: Include later mainScaner (A22) and mainParser (A32)
 */
-sofia_void printLogo();
+mouse_void printLogo();
 
 #endif

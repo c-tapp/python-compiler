@@ -2,7 +2,7 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2023
-* Author: TO_DO
+* Author: Colin Tapp, Henry Forget
 * Professors: Paulo Sousa
 ************************************************************
 =---------------------------------------=
@@ -109,48 +109,48 @@ enum READER_MODE {
 
 /* Offset declaration */
 typedef struct position {
-	sofia_intg mark;			/* the offset to the mark position (in chars) */
-	sofia_intg read;			/* the offset to the get a char position (in chars) */
-	sofia_intg wrte;			/* the offset to the add chars (in chars) */
+	mouse_intg mark;			/* the offset to the mark position (in chars) */
+	mouse_intg read;			/* the offset to the get a char position (in chars) */
+	mouse_intg wrte;			/* the offset to the add chars (in chars) */
 } Position;
 
 /* Buffer structure */
 typedef struct bufferReader {
-	sofia_string	content;			/* pointer to the beginning of character array (character buffer) */
-	sofia_intg		size;				/* current dynamic memory size (in bytes) allocated to character buffer */
-	sofia_intg		increment;			/* character array increment factor */
-	sofia_intg		mode;				/* operational mode indicator */
-	sofia_byte		flags;				/* contains character array reallocation flag and end-of-buffer flag */
+	mouse_string	content;			/* pointer to the beginning of character array (character buffer) */
+	mouse_intg		size;				/* current dynamic memory size (in bytes) allocated to character buffer */
+	mouse_intg		increment;			/* character array increment factor */
+	mouse_intg		mode;				/* operational mode indicator */
+	mouse_byte		flags;				/* contains character array reallocation flag and end-of-buffer flag */
 	Position		position;				/* Offset / position field */
-	sofia_intg		histogram[NCHAR];	/* Statistics of chars */
-	sofia_intg		numReaderErrors;	/* Number of errors from Reader */
+	mouse_intg		histogram[NCHAR];	/* Statistics of chars */
+	mouse_intg		numReaderErrors;	/* Number of errors from Reader */
 } Buffer, *BufferPointer;
 
 /* FUNCTIONS DECLARATION:  .................................. */
 /* General Operations */
-BufferPointer	readerCreate		(sofia_intg, sofia_intg, sofia_intg);
-BufferPointer	readerAddChar		(BufferPointer const, sofia_char);
-sofia_boln		readerClear		    (BufferPointer const);
-sofia_boln		readerFree		    (BufferPointer const);
-sofia_boln		readerIsFull		(BufferPointer const);
-sofia_boln		readerIsEmpty		(BufferPointer const);
-sofia_boln		readerSetMark		(BufferPointer const, sofia_intg);
-sofia_intg		readerPrint		    (BufferPointer const);
-sofia_intg		readerLoad			(BufferPointer const, FILE* const);
-sofia_boln		readerRecover		(BufferPointer const);
-sofia_boln		readerRetract		(BufferPointer const);
-sofia_boln		readerRestore		(BufferPointer const);
+BufferPointer	readerCreate		(mouse_intg, mouse_intg, mouse_intg);
+BufferPointer	readerAddChar		(BufferPointer const, mouse_char);
+mouse_boln		readerClear		    (BufferPointer const);
+mouse_boln		readerFree		    (BufferPointer const);
+mouse_boln		readerIsFull		(BufferPointer const);
+mouse_boln		readerIsEmpty		(BufferPointer const);
+mouse_boln		readerSetMark		(BufferPointer const, mouse_intg);
+mouse_intg		readerPrint		    (BufferPointer const);
+mouse_intg		readerLoad			(BufferPointer const, FILE* const);
+mouse_boln		readerRecover		(BufferPointer const);
+mouse_boln		readerRetract		(BufferPointer const);
+mouse_boln		readerRestore		(BufferPointer const);
 /* Getters */
-sofia_char		readerGetChar		(BufferPointer const);
-sofia_string	readerGetContent	(BufferPointer const, sofia_intg);
-sofia_intg		readerGetPosRead	(BufferPointer const);
-sofia_intg		readerGetPosWrte	(BufferPointer const);
-sofia_intg		readerGetPosMark	(BufferPointer const);
-sofia_intg		readerGetSize		(BufferPointer const);
-sofia_intg		readerGetInc		(BufferPointer const);
-sofia_intg		readerGetMode		(BufferPointer const);
-sofia_byte		readerGetFlags		(BufferPointer const);
-sofia_void		readerPrintStat		(BufferPointer const);
-sofia_intg		readerNumErrors		(BufferPointer const);
+mouse_char		readerGetChar		(BufferPointer const);
+mouse_string	readerGetContent	(BufferPointer const, mouse_intg);
+mouse_intg		readerGetPosRead	(BufferPointer const);
+mouse_intg		readerGetPosWrte	(BufferPointer const);
+mouse_intg		readerGetPosMark	(BufferPointer const);
+mouse_intg		readerGetSize		(BufferPointer const);
+mouse_intg		readerGetInc		(BufferPointer const);
+mouse_intg		readerGetMode		(BufferPointer const);
+mouse_byte		readerGetFlags		(BufferPointer const);
+mouse_void		readerPrintStat		(BufferPointer const);
+mouse_intg		readerNumErrors		(BufferPointer const);
 
 #endif
