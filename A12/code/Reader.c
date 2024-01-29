@@ -1,59 +1,60 @@
 /*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
-* Code version: Fall, 2023
-* Author: Colin Tapp, Henry Forget
+* Code version: Winter, 2024
+* Author: Colin Tapp 040774946 / Henry Forget 041023812
 * Professors: Paulo Sousa
 ************************************************************
-=---------------------------------------=
-|  COMPILERS - ALGONQUIN COLLEGE (F23)  |
-=---------------------------------------=
-|              ....                     |
-|          ........::.::::::.           |
-|        .:........::.:^^^~~~:          |
-|        :^^::::::^^^::^!7??7~^.        |
-|       .:^~~^!77777~~7?YY?7??7^.       |
-|       :.^~!??!^::::^^~!?5PY??!~.      |
-|       ~!!7J~.:::^^^^~!!~~?G5J?~       |
-|       :^~?!~7?Y57^^?PP5YJ!J5Y?:       |
-|       .~!!.:^!7!:.:7JYYJ7~7Y7^        |
-|       .~77..    . .~^:^^^~7?:         |
-|       .^!^~:::.:^!7?~^~!77J:          |
-|        ^^!Y~^^^^~?YJ77??7JJ^          |
-|       .^7J?~^~~^~7??7??7JY?~:         |
-|        ::^^~^7?!^~~!7???J?J7~:.       |
-|         ^~~!.^7YPPPP5Y?7J7777~.       |
-|        ..:~..:^!JPP5YJ?!777!^.        |
-| .~?JJJJJJJJJJYYYYYPPPPPPPPPPPP5PPYY~  |
-|  :!Y5GGG.___ YYYYYY__._.PPGGGGGG5!.   |
-|   :!Y5G / __| ___ / _(_)__ _ PGP5.    |
-|    :~75 \__ \/ _ \  _| / _` | 5?.     |
-|     7~7 |___/\___/_| |_\__,_| Y5?.    |
-|    .^~!~.....................P5YY7.   |
-|   .:::::::::::::?JJJJYYYYYYYYYJJJJ7.  |
-|                                       |
-=---------------------------------------=
+_______________________________________________________
+|                     .@@@@=                          |
+|                  %*#.    -% +-                      |
+|            -.-@%+        .%.   .#.                  |
+|                         #         *                 |
+|                       :.           :+               |
+|                       -             -.              |
+|                      @               *              |
+|                      =               -              |
+|                     .                .+             |
+|                     *#-              .#             |
+|                   +    ::          +-   @           |
+|                   %     #         +.    .=          |
+|                   +                     -           |
+|                    -=                  +            |
+|                       #             #               |
+|                        #           +                |
+|                           @#   %@ :-                |
+|                         +         +                 |
+|                          #       +                  |
+|                           =:   --                   |
+|                             =@+                     |
+|                                                     |
+|/$$$$$$/$$$$   /$$$$$$  /$$   /$$  /$$$$$$$  /$$$$$$ |
+| $$_  $$_  $$ /$$__  $$| $$  | $$ /$$_____/ /$$__  $$|
+| $$ \ $$ \ $$| $$  \ $$| $$  | $$|  $$$$$$ | $$$$$$$$|
+| $$ | $$ | $$| $$  | $$| $$  | $$ \____  $$| $$_____/|
+| $$ | $$ | $$|  $$$$$$/|  $$$$$$/ /$$$$$$$/|  $$$$$$$|
+|__/_|__/_|__/_\______/__\______/_|_______/__\_______/|
 */
 
 /*
-***********************************************************
+************************************************************
 * File name: Reader.c
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
-* Assignment: A12.
-* Date: May 01 2023
+* Course: CST 8152 – Compilers, Lab Section: 011
+* Assignment: A12
+* Date: 01/29/24
 * Professor: Paulo Sousa
-* Purpose: This file is the main code for Buffer/Reader (A12)
+* Purpose: This file is the main code for Reader (.c)
+* Function list:
+*    readerCreate, readerAddChar, readerClear, readerFree,
+*    readerIsFull, readerIsEmpty, readerSetMark, readerPrint,
+*    readerLoad, readerRecover, readerRetract, readerRestore,
+*    readerGetChar, readerGetContent, readerGetPosRead,
+*    readerGetPosWrte, readerGetPosMark, readerGetSize,
+*    readerGetInc, readerGetMode, readerGetFlags,
+*    readerPrintStat, readerNumErrors
 ************************************************************
 */
-
-/*
- *.............................................................................
- * MAIN ADVICE:
- * - Please check the "TODO" labels to develop your activity.
- * - Review the functions to use "Defensive Programming".
- *.............................................................................
- */
 
 #ifndef COMPILERS_H_
 #include "Compilers.h"
@@ -77,7 +78,7 @@
 *   mode = operational mode
 * Return value: bPointer (pointer to reader)
 * Algorithm: Allocation of memory according to initial (default) values.
-* TODO ......................................................
+* TO_DO ......................................................
 *	[X] Adjust datatypes for your LANGUAGE.
 *   [ ] Use defensive programming
 *	[ ] Check boundary conditions
@@ -178,7 +179,7 @@ mouse_boln readerClear(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Adjust flags original */
 	readerPointer->position.wrte = readerPointer->position.mark = readerPointer->position.read = 0;
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 /*
@@ -198,7 +199,7 @@ mouse_boln readerClear(BufferPointer const readerPointer) {
 mouse_boln readerFree(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Free pointers */
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 /*
@@ -218,7 +219,7 @@ mouse_boln readerFree(BufferPointer const readerPointer) {
 mouse_boln readerIsFull(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Check flag if buffer is FUL */
-	return SOFIA_FALSE;
+	return MOUSE_FALSE;
 }
 
 
@@ -239,7 +240,7 @@ mouse_boln readerIsFull(BufferPointer const readerPointer) {
 mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Check flag if buffer is EMP */
-	return SOFIA_FALSE;
+	return MOUSE_FALSE;
 }
 
 /*
@@ -261,7 +262,7 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_intg mark) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Adjust mark */
 	readerPointer->position.mark = mark;
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 
@@ -345,7 +346,7 @@ mouse_boln readerRecover(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Recover positions */
 	readerPointer->position.read = 0;
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 
@@ -366,7 +367,7 @@ mouse_boln readerRecover(BufferPointer const readerPointer) {
 mouse_boln readerRetract(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Retract (return 1 pos read) */
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 
@@ -388,7 +389,7 @@ mouse_boln readerRestore(BufferPointer const readerPointer) {
 	/* TO_DO: Defensive programming */
 	/* TO_DO: Restore positions (read/mark) */
 	readerPointer->position.read = readerPointer->position.mark;
-	return SOFIA_TRUE;
+	return MOUSE_TRUE;
 }
 
 

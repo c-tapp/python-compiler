@@ -1,58 +1,60 @@
 /*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
-* Code version: Fall, 2023
-* Author: Colin Tapp, Henry Forget
+* Code version: Winter, 2024
+* Author: Colin Tapp 040774946 / Henry Forget 041023812
 * Professors: Paulo Sousa
 ************************************************************
-=---------------------------------------=
-|  COMPILERS - ALGONQUIN COLLEGE (F23)  |
-=---------------------------------------=
-|              ....                     |
-|          ........::.::::::.           |
-|        .:........::.:^^^~~~:          |
-|        :^^::::::^^^::^!7??7~^.        |
-|       .:^~~^!77777~~7?YY?7??7^.       |
-|       :.^~!??!^::::^^~!?5PY??!~.      |
-|       ~!!7J~.:::^^^^~!!~~?G5J?~       |
-|       :^~?!~7?Y57^^?PP5YJ!J5Y?:       |
-|       .~!!.:^!7!:.:7JYYJ7~7Y7^        |
-|       .~77..    . .~^:^^^~7?:         |
-|       .^!^~:::.:^!7?~^~!77J:          |
-|        ^^!Y~^^^^~?YJ77??7JJ^          |
-|       .^7J?~^~~^~7??7??7JY?~:         |
-|        ::^^~^7?!^~~!7???J?J7~:.       |
-|         ^~~!.^7YPPPP5Y?7J7777~.       |
-|        ..:~..:^!JPP5YJ?!777!^.        |
-| .~?JJJJJJJJJJYYYYYPPPPPPPPPPPP5PPYY~  |
-|  :!Y5GGG.___ YYYYYY__._.PPGGGGGG5!.   |
-|   :!Y5G / __| ___ / _(_)__ _ PGP5.    |
-|    :~75 \__ \/ _ \  _| / _` | 5?.     |
-|     7~7 |___/\___/_| |_\__,_| Y5?.    |
-|    .^~!~.....................P5YY7.   |
-|   .:::::::::::::?JJJJYYYYYYYYYJJJJ7.  |
-|                                       |
-=---------------------------------------=
+_______________________________________________________
+|                     .@@@@=                          |
+|                  %*#.    -% +-                      |
+|            -.-@%+        .%.   .#.                  |
+|                         #         *                 |
+|                       :.           :+               |
+|                       -             -.              |
+|                      @               *              |
+|                      =               -              |
+|                     .                .+             |
+|                     *#-              .#             |
+|                   +    ::          +-   @           |
+|                   %     #         +.    .=          |
+|                   +                     -           |
+|                    -=                  +            |
+|                       #             #               |
+|                        #           +                |
+|                           @#   %@ :-                |
+|                         +         +                 |
+|                          #       +                  |
+|                           =:   --                   |
+|                             =@+                     |
+|                                                     |
+|/$$$$$$/$$$$   /$$$$$$  /$$   /$$  /$$$$$$$  /$$$$$$ |
+| $$_  $$_  $$ /$$__  $$| $$  | $$ /$$_____/ /$$__  $$|
+| $$ \ $$ \ $$| $$  \ $$| $$  | $$|  $$$$$$ | $$$$$$$$|
+| $$ | $$ | $$| $$  | $$| $$  | $$ \____  $$| $$_____/|
+| $$ | $$ | $$|  $$$$$$/|  $$$$$$/ /$$$$$$$/|  $$$$$$$|
+|__/_|__/_|__/_\______/__\______/_|_______/__\_______/|
 */
 
 /*
 ************************************************************
 * File name: Reader.h
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 – Compilers, Lab Section: [011, 012]
-* Assignment: A12.
-* Date: May 01 2023
+* Course: CST 8152 – Compilers, Lab Section: 011
+* Assignment: A12
+* Date: 01/29/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main header for Reader (.h)
+* Function list:
+*    readerCreate, readerAddChar, readerClear, readerFree,
+*    readerIsFull, readerIsEmpty, readerSetMark, readerPrint,
+*    readerLoad, readerRecover, readerRetract, readerRestore,
+*    readerGetChar, readerGetContent, readerGetPosRead,
+*    readerGetPosWrte, readerGetPosMark, readerGetSize,
+*    readerGetInc, readerGetMode, readerGetFlags,
+*    readerPrintStat, readerNumErrors
 ************************************************************
 */
-
-/*
- *.............................................................................
- * MAIN ADVICE:
- * Please check the "TODO" labels to develop your activity.
- *.............................................................................
- */
 
 #ifndef COMPILERS_H_
 #include "Compilers.h"

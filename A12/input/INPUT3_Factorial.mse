@@ -1,0 +1,18 @@
+# File name: INPUT3_Factorial.mse
+# Compiler: MS Visual Studio 2022
+# Author(s): Colin Tapp 040774946 / Henry Forget 041023812 
+# Course: CST 8152 – Compilers, Lab Section: 011
+# Assignment: A12
+# Date: 01/28/2024
+# Purpose: Testing numbers (ex: factorial)
+
+# The program is "lexically" correct and should not generate any error 
+
+
+num: int = int(input("Enter a number: "))
+factorial: int = 1
+
+for (i = 0, i < num, i++)
+	factorial = factorial*i
+
+print("The factorial of " + num + " is " + factorial)
