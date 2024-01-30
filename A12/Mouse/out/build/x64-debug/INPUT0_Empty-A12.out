@@ -1,0 +1,50 @@
+	#-----------------------------------------------------#
+	|         COMPILERS - ALGONQUIN COLLEGE (W24)         |
+	#_____________________________________________________#
+	|                     .@@@@=                          |
+	|                  %*#.    -% +-                      |
+	|            -.-@%+        .%.   .#.                  |
+	|                         #         *                 |
+	|                       :.           :+               |
+	|                       -             -.              |
+	|                      @               *              |
+	|                      =               -              |
+	|                     .                .+             |
+	|                     *#-              .#             |
+	|                   +    ::          +-   @           |
+	|                   %     #         +.    .=          |
+	|                   +                     -           |
+	|                    -=                  +            |
+	|                       #             #               |
+	|                        #           +                |
+	|                           @#   %@ :-                |
+	|                         +         +                 |
+	|                          #       +                  |
+	|                           =:   --                   |
+	|                             =@+                     |
+	|                                                     |
+	|/$$$$$$/$$$$   /$$$$$$  /$$   /$$  /$$$$$$$  /$$$$$$ |
+	| $$_  $$_  $$ /$$__  $$| $$  | $$ /$$_____/ /$$__  $$|
+	| $$  $$  $$| $$   $$| $$  | $$|  $$$$$$ | $$$$$$$$|
+	| $$ | $$ | $$| $$  | $$| $$  | $$ ____  $$| $$_____/|
+	| $$ | $$ | $$|  $$$$$$/|  $$$$$$/ /$$$$$$$/|  $$$$$$$|
+	|__/_|__/_|__/_______/________/_|_______/_________/|
+
+[Option 'r': Starting READER .....]
+
+Reading file INPUT0_Empty.mse ....Please wait
+
+Printing buffer parameters:
+
+The capacity of the buffer is:  250
+The current size of the buffer is:  0
+The operational mode of the buffer is: f
+The increment factor of the buffer is:  10
+The first symbol in the buffer is:   
+The value of the flags field is: 00
+Reader statistics : 
+Number of errors: 0
+
+Printing buffer contents:
+
+Empty buffer

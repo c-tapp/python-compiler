@@ -1,0 +1,109 @@
+	#-----------------------------------------------------#
+	|         COMPILERS - ALGONQUIN COLLEGE (W24)         |
+	#_____________________________________________________#
+	|                     .@@@@=                          |
+	|                  %*#.    -% +-                      |
+	|            -.-@%+        .%.   .#.                  |
+	|                         #         *                 |
+	|                       :.           :+               |
+	|                       -             -.              |
+	|                      @               *              |
+	|                      =               -              |
+	|                     .                .+             |
+	|                     *#-              .#             |
+	|                   +    ::          +-   @           |
+	|                   %     #         +.    .=          |
+	|                   +                     -           |
+	|                    -=                  +            |
+	|                       #             #               |
+	|                        #           +                |
+	|                           @#   %@ :-                |
+	|                         +         +                 |
+	|                          #       +                  |
+	|                           =:   --                   |
+	|                             =@+                     |
+	|                                                     |
+	|/$$$$$$/$$$$   /$$$$$$  /$$   /$$  /$$$$$$$  /$$$$$$ |
+	| $$_  $$_  $$ /$$__  $$| $$  | $$ /$$_____/ /$$__  $$|
+	| $$  $$  $$| $$   $$| $$  | $$|  $$$$$$ | $$$$$$$$|
+	| $$ | $$ | $$| $$  | $$| $$  | $$ ____  $$| $$_____/|
+	| $$ | $$ | $$|  $$$$$$/|  $$$$$$/ /$$$$$$$/|  $$$$$$$|
+	|__/_|__/_|__/_______/________/_|_______/_________/|
+
+[Option 'r': Starting READER .....]
+
+Reading file INPUT2_Volume.mse ....Please wait
+The input file INPUT2_Volume.mse has not been completely loaded.
+Current size of buffer: 250.
+Last character read from the input file is:   32
+Input file size: 331
+
+Printing buffer parameters:
+
+The capacity of the buffer is:  250
+The current size of the buffer is:  250
+The operational mode of the buffer is: f
+The increment factor of the buffer is:  10
+The first symbol in the buffer is:  #
+The value of the flags field is: 00
+Reader statistics : 
+[	]=4
+[
+]=9
+[ ]=34
+["]=2
+[#]=3
+[']=2
+[(]=5
+[)]=5
+[*]=4
+[.]=1
+[/]=1
+[1]=3
+[2]=1
+[3]=5
+[4]=2
+[5]=3
+[6]=1
+[7]=1
+[8]=1
+[9]=3
+[:]=5
+[=]=3
+[F]=1
+[R]=1
+[T]=1
+[a]=14
+[c]=4
+[d]=6
+[e]=15
+[f]=6
+[g]=2
+[h]=3
+[i]=9
+[l]=12
+[m]=5
+[n]=10
+[o]=15
+[p]=5
+[r]=13
+[s]=4
+[t]=10
+[u]=9
+[v]=4
+[x]=1
+[y]=2
+Number of errors: 0
+
+Printing buffer contents:
+
+# The program is "lexically" correct and should not generate any error 
+
+# Function volume
+def volume():
+	pi: float = 3.1415926535897931
+	radian: float = float(input('Radius of sphere: '))
+	volume: float = (4/3) * (pi * radian ** 3)
+	return volume
+
+#

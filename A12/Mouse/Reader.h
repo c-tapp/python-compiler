@@ -76,9 +76,9 @@ _______________________________________________________
 
 /* Modes (used to create buffer reader) */
 enum READER_MODE {
-	MODE_FIXED = 'f', /* Fixed mode (constant size) */
-	MODE_ADDIT = 'a', /* Additive mode (constant increment to be added) */
-	MODE_MULTI = 'm'  /* Multiplicative mode (constant increment to be multiplied) */
+	MODE_FIXED = 'f', /* Fixed mode (constant size) (f = 102)*/
+	MODE_ADDIT = 'a', /* Additive mode (constant increment to be added) (a = 97)*/
+	MODE_MULTI = 'm'  /* Multiplicative mode (constant increment to be multiplied) (m = 109)*/
 };
 
 /* Constants about controls (not need to change) */

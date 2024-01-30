@@ -1,11 +1,3 @@
-# File name: INPUT1_Hello.mse
-# Compiler: MS Visual Studio 2022
-# Author(s): Colin Tapp 040774946 / Henry Forget 041023812 
-# Course: CST 8152 – Compilers, Lab Section: 011
-# Assignment: A12
-# Date: 01/28/2024
-# Purpose: Simple Hello World
-
 # The program is "lexically" correct and should not generate any error 
 
 print('Hello world!')

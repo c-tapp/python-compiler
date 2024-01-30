@@ -78,35 +78,38 @@ _______________________________________________________
 *   mode = operational mode
 * Return value: bPointer (pointer to reader)
 * Algorithm: Allocation of memory according to initial (default) values.
-* TO_DO ......................................................
-*	[X] Adjust datatypes for your LANGUAGE.
-*   [ ] Use defensive programming
-*	[ ] Check boundary conditions
-*	[ ] Check flags.
 *************************************************************
 */
 
 BufferPointer readerCreate(mouse_int size, mouse_int increment, mouse_int mode) {
 	BufferPointer readerPointer;
-	/* TO_DO: Defensive programming */
-	if ((size < 0) || (size == 0))
+	// Defensive programming
+	if (size <= 0 || size == NULL) {
 		size = READER_DEFAULT_SIZE;
-	/* TO_DO: Adjust the values according to parameters */
+		increment = READER_DEFAULT_INCREMENT;
+	}
+	if (increment <= 0 || increment == NULL)
+		mode = MODE_FIXED;
+	if ((mode != MODE_FIXED) && (mode != MODE_ADDIT) && (mode != MODE_MULTI)) // Checking if mode is one of the valid chars (f = 102, a = 97, m = 109)
+		return NULL;
+
+	// Adjust the values according to parameters
 	readerPointer = (BufferPointer)calloc(1, sizeof(Buffer));
 	if (!readerPointer)
 		return NULL;
 	readerPointer->content = (mouse_str)malloc(size);
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Initialize the histogram */
+
+	// Initialize histogram
 	for (int i = 0; i < NCHAR; i++)
 		readerPointer->histogram[i] = 0;
 
 	readerPointer->size = size;
 	readerPointer->increment = increment;
 	readerPointer->mode = mode;
-	/* TO_DO: Initialize flags */
-	/* TO_DO: The created flag must be signalized as EMP */
-	/* NEW: Cleaning the content */
+
+	// Initialize flags as EMP
+	readerPointer->flags = READER_DEFAULT_FLAG | READER_EMP_FLAG;
+
 	if (readerPointer->content)
 		readerPointer->content[0] = READER_TERMINATOR;
 	readerPointer->position.wrte = 0;
@@ -160,9 +163,9 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 		/* TO_DO: Defensive programming */
 		/* TO_DO: Check Relocation */
 	}
-	/* TO_DO: Add the char */
-	readerPointer->content[readerPointer->position.wrte++] = ch;
-	readerPointer->histogram[ch]++;
+	readerPointer->content[readerPointer->position.wrte++] = ch; // Add the char
+	readerPointer->flags = readerPointer->flags & (!READER_EMP_FLAG); // Reset EMP
+	readerPointer->histogram[ch]++; // Update Histogram
 	return readerPointer;
 }
 
@@ -222,7 +225,9 @@ mouse_boln readerFree(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerIsFull(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
+	if (!readerPointer)
+		return mouse_False;
+
 	/* TO_DO: Check flag if buffer is FUL */
 	return mouse_False;
 }
