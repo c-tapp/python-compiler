@@ -1,0 +1,6 @@
+# ninja log v5
+4	746	7283050920487082	CMakeFiles/Mouse.dir/Mouse.cpp.obj	7ba886a12dca6c84
+7	269	7283178742983578	Mouse.exe	f3003b5ec94c0176
+11	493	7283076895004253	CMakeFiles/Mouse.dir/Compilers.c.obj	e876cd63e5e81167
+13	474	7283084932279848	CMakeFiles/Mouse.dir/MainReader.c.obj	7dfb26983985daa6
+11	73	7283110259123194	CMakeFiles/Mouse.dir/Reader.c.obj	274b599c778c6f32
