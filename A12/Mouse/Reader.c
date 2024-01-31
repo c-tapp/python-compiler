@@ -185,14 +185,14 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 */
 mouse_boln readerClear(BufferPointer const readerPointer) {
 	// Defensive programming
-    if (!readerPointer) 
-        return mouse_False; 
+	if (!readerPointer) 
+		return mouse_False; 
 	
 	// Reset offets
 	readerPointer->position.wrte = readerPointer->position.mark = readerPointer->position.read = 0;
 	
 	// Reset flags
-    readerPointer->flags = READER_DEFAULT_FLAG | READER_EMP_FLAG;
+	readerPointer->flags = READER_DEFAULT_FLAG | READER_EMP_FLAG;
 	
 	return mouse_True;
 }
@@ -213,13 +213,13 @@ mouse_boln readerClear(BufferPointer const readerPointer) {
 */
 mouse_boln readerFree(BufferPointer const readerPointer) {
 	// Defensive programming
-    if (!readerPointer) 
-        return mouse_False; 
+	if (!readerPointer) 
+		return mouse_False; 
 	
 	// Free pointers
-    if (readerPointer->content) 
-        free(readerPointer->content);
-    free(readerPointer);
+	if (readerPointer->content) 
+		free(readerPointer->content);
+	free(readerPointer);
 	
 	return mouse_True;
 }
@@ -240,14 +240,14 @@ mouse_boln readerFree(BufferPointer const readerPointer) {
 */
 mouse_boln readerIsFull(BufferPointer const readerPointer) {
 	// Defensive programming
-    if (!readerPointer)
-        return mouse_False;
+	if (!readerPointer)
+		return mouse_False;
 
-    // Check flag if buffer is full
-    if (readerPointer->flags & READER_FUL_FLAG)
-        return mouse_True;
+	// Check flag if buffer is full
+	if (readerPointer->flags & READER_FUL_FLAG)
+		return mouse_True;
 
-    return mouse_False;
+	return mouse_False;
 }
 
 
@@ -266,15 +266,15 @@ mouse_boln readerIsFull(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
-    // Defensive programming
-    if (!readerPointer)
-        return mouse_False;
+	// Defensive programming
+	if (!readerPointer)
+		return mouse_False;
 
-    // Check flag if buffer is empty
-    if (readerPointer->flags & READER_EMP_FLAG)
-        return mouse_True;
+	// Check flag if buffer is empty
+	if (readerPointer->flags & READER_EMP_FLAG)
+		return mouse_True;
 
-    return mouse_False;
+	return mouse_False;
 }
 
 /*
@@ -289,15 +289,15 @@ mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
-    // Defensive programming
-    if (!readerPointer) 
-        return mouse_False;
-    if (mark < 0 || mark > readerPointer->position.wrte)
-        return mouse_False;
+	// Defensive programming
+	if (!readerPointer) 
+		return mouse_False;
+	if (mark < 0 || mark > readerPointer->position.wrte)
+		return mouse_False;
     
-    // Update the mark position offset with the new value
-    readerPointer->position.mark = mark;
-    return mouse_True;
+	// Update the mark position offset with the new value
+	readerPointer->position.mark = mark;
+	return mouse_True;
 }
 
 
@@ -400,8 +400,14 @@ mouse_boln readerRecover(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerRetract(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Retract (return 1 pos read) */
+	// Defensive programming
+    if (!readerPointer)
+        return mouse_False;
+	
+	// If read is positive, decrement 
+    if (readerPointer->position.read > 0)
+        readerPointer->position.read--;
+	
 	return mouse_True;
 }
 
@@ -421,8 +427,11 @@ mouse_boln readerRetract(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerRestore(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Restore positions (read/mark) */
+	 // Defensive programming
+    if (!readerPointer)
+        return mouse_False;
+
+    // Restore read offset to the value of the current mark offset
 	readerPointer->position.read = readerPointer->position.mark;
 	return mouse_True;
 }
