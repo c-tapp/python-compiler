@@ -184,9 +184,16 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 *************************************************************
 */
 mouse_boln readerClear(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Adjust flags original */
+	// Defensive programming
+    if (!readerPointer) 
+        return mouse_False; 
+	
+	// Reset offets
 	readerPointer->position.wrte = readerPointer->position.mark = readerPointer->position.read = 0;
+	
+	// Reset flags
+    readerPointer->flags = READER_DEFAULT_FLAG | READER_EMP_FLAG;
+	
 	return mouse_True;
 }
 
@@ -205,8 +212,15 @@ mouse_boln readerClear(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerFree(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Free pointers */
+	// Defensive programming
+    if (!readerPointer) 
+        return mouse_False; 
+	
+	// Free pointers
+    if (readerPointer->content) 
+        free(readerPointer->content);
+    free(readerPointer);
+	
 	return mouse_True;
 }
 
@@ -225,11 +239,15 @@ mouse_boln readerFree(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerIsFull(BufferPointer const readerPointer) {
-	if (!readerPointer)
-		return mouse_False;
+	// Defensive programming
+    if (!readerPointer)
+        return mouse_False;
 
-	/* TO_DO: Check flag if buffer is FUL */
-	return mouse_False;
+    // Check flag if buffer is full
+    if (readerPointer->flags & READER_FUL_FLAG)
+        return mouse_True;
+
+    return mouse_False;
 }
 
 
@@ -248,9 +266,15 @@ mouse_boln readerIsFull(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Check flag if buffer is EMP */
-	return mouse_False;
+    // Defensive programming
+    if (!readerPointer)
+        return mouse_False;
+
+    // Check flag if buffer is empty
+    if (readerPointer->flags & READER_EMP_FLAG)
+        return mouse_True;
+
+    return mouse_False;
 }
 
 /*
@@ -265,13 +289,15 @@ mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
-	if (!readerPointer) 
-		return mouse_False;		
-	if (mark < 0)
-		return mouse_False;
-	
-	readerPointer->position.mark = mark;
-	return mouse_True;
+    // Defensive programming
+    if (!readerPointer) 
+        return mouse_False;
+    if (mark < 0 || mark > readerPointer->position.wrte)
+        return mouse_False;
+    
+    // Update the mark position offset with the new value
+    readerPointer->position.mark = mark;
+    return mouse_True;
 }
 
 
@@ -290,17 +316,17 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
 *************************************************************
 */
 mouse_int readerPrint(BufferPointer const readerPointer) {
-	mouse_int cont = 0;
+	mouse_int count = 0;
 	mouse_char c;
 	/* TO_DO: Defensive programming (including invalid chars) */
 	c = readerGetChar(readerPointer);
 	/* TO_DO: Check flag if buffer EOB has achieved */
-	while (cont < readerPointer->position.wrte) {
-		cont++;
+	while (count < readerPointer->position.wrte) {
+		count++;
 		printf("%c", c);
 		c = readerGetChar(readerPointer);
 	}
-	return cont;
+	return count;
 }
 
 /*
