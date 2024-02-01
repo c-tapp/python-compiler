@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A12
-* Date: 01/29/24
+* Date: 01/02/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main code for Buffer/Reader (A12)
 * Function list:
@@ -278,19 +278,19 @@ mouse_int isNumber(const mouse_str ns) {
 
 mouse_None displayBuffer(Buffer* ptr_Buffer) {
 	printf("\nPrinting buffer parameters:\n\n");
-	printf("The capacity of the buffer is:  %d\n",
+	printf("The capacity of the buffer is: %d\n",
 		readerGetSize(ptr_Buffer));
-	printf("The current size of the buffer is:  %d\n",
+	printf("The current size of the buffer is: %d\n",
 		readerGetPosWrte(ptr_Buffer));
 	printf("The operational mode of the buffer is: %c\n",
 		readerGetMode(ptr_Buffer));
-	printf("The increment factor of the buffer is:  %lu\n",
+	printf("The increment factor of the buffer is: %lu\n",
 		readerGetInc(ptr_Buffer));
-	printf("The first symbol in the buffer is:  %c\n",
+	printf("The first symbol in the buffer is: %c\n",
 		readerGetPosWrte(ptr_Buffer) ? *readerGetContent(ptr_Buffer, 0) : ' ');
 	printf("The value of the flags field is: %02hX\n",
 		readerGetFlags(ptr_Buffer));
-	printf("%s", "Reader statistics : \n");
+	printf("%s", "Reader statistics: \n");
 	readerPrintStat(ptr_Buffer);
 	printf("Number of errors: %d\n",
 		readerNumErrors(ptr_Buffer));

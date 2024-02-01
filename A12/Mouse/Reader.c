@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A12
-* Date: 01/29/24
+* Date: 01/02/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main code for Reader (.c)
 * Function list:
@@ -69,8 +69,6 @@ _______________________________________________________
 * Function name: readerCreate
 * Purpose: Creates the buffer reader according to capacity, increment
 	factor and operational mode ('f', 'a', 'm')
-* Author: Svillen Ranev / Paulo Sousa
-* History/Versions: S22
 * Called functions: calloc(), malloc()
 * Parameters:
 *   size = initial capacity
@@ -80,15 +78,14 @@ _______________________________________________________
 * Algorithm: Allocation of memory according to initial (default) values.
 *************************************************************
 */
-
 BufferPointer readerCreate(mouse_int size, mouse_int increment, mouse_int mode) {
 	BufferPointer readerPointer;
 	// Defensive programming
-	if (size <= 0 || size == NULL) {
+	if (size <= 0) {
 		size = READER_DEFAULT_SIZE;
 		increment = READER_DEFAULT_INCREMENT;
 	}
-	if (increment <= 0 || increment == NULL)
+	if (increment <= 0)
 		mode = MODE_FIXED;
 	if ((mode != MODE_FIXED) && (mode != MODE_ADDIT) && (mode != MODE_MULTI)) // Checking if mode is one of the valid chars (f = 102, a = 97, m = 109)
 		return NULL;
@@ -123,45 +120,70 @@ BufferPointer readerCreate(mouse_int size, mouse_int increment, mouse_int mode) 
 ***********************************************************
 * Function name: readerAddChar
 * Purpose: Adds a char to buffer reader
+* Called functions: sizeof(), realloc()
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 *   ch = char to be added
 * Return value:
 *	readerPointer (pointer to Buffer Reader)
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: include a char in the reader and
+*	increase size if needed
 *************************************************************
 */
-
 BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 	mouse_str tempReader = NULL;
 	mouse_int newSize = 0;
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Reset Realocation */
-	/* TO_DO: Test the inclusion of chars */
+
+	// Defensive programming
+	if (!readerPointer)
+		return NULL;
+	if ((ch < 0) || (ch > 128))
+		return NULL;
+
+	readerPointer->flags = readerPointer->flags & (!READER_REL_FLAG); // Reset REL
 	if (readerPointer->position.wrte * (mouse_int)sizeof(mouse_char) < readerPointer->size) {
-		/* TO_DO: This buffer is NOT full */
-	} else {
-		/* TO_DO: Reset Full flag */
+		// Included at the bottom
+	}
+	else {
+		readerPointer->flags = readerPointer->flags & (!READER_FUL_FLAG); // Reset FULL
+
 		switch (readerPointer->mode) {
 		case MODE_FIXED:
+			readerPointer->flags = readerPointer->flags | (READER_FUL_FLAG); // Reader is full
 			return NULL;
 		case MODE_ADDIT:
-			/* TO_DO: Adjust new size */
-			/* TO_DO: Defensive programming */
+			newSize = readerPointer->size + readerPointer->increment;
+			// Defensive programming below
 			break;
 		case MODE_MULTI:
-			/* TO_DO: Adjust new size */
-			/* TO_DO: Defensive programming */
+			newSize = readerPointer->size * readerPointer->increment;
+			// Defensive programming below
 			break;
 		default:
 			return NULL;
 		}
-		/* TO_DO: New reader allocation */
-		/* TO_DO: Defensive programming */
-		/* TO_DO: Check Relocation */
+
+		// Defensive Programming
+		if ((newSize < 0) || (newSize > READER_MAX_SIZE)) { // newSize is invalid
+			readerPointer->flags = readerPointer->flags | (READER_FUL_FLAG); // Reader is full
+			return NULL;
+		}
+
+		// New reader allocation
+		tempReader = (mouse_str)realloc(readerPointer->content, newSize);
+
+		// Defensive programming
+		if (!tempReader)
+			return NULL;
+
+		// Check Relocation
+		if (tempReader != readerPointer->content) { 
+			readerPointer->flags = readerPointer->flags | (!READER_REL_FLAG);
+		}
+
+		// Updating ReaderPointer
+		readerPointer->content = tempReader;
+		readerPointer->size = newSize;
 	}
 	readerPointer->content[readerPointer->position.wrte++] = ch; // Add the char
 	readerPointer->flags = readerPointer->flags & (!READER_EMP_FLAG); // Reset EMP
@@ -177,20 +199,15 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: Reset offsets and flags
 *************************************************************
 */
 mouse_boln readerClear(BufferPointer const readerPointer) {
 	// Defensive programming
 	if (!readerPointer) 
 		return mouse_False; 
-	
-	// Reset offets
+	// Reset offsets
 	readerPointer->position.wrte = readerPointer->position.mark = readerPointer->position.read = 0;
-	
 	// Reset flags
 	readerPointer->flags = READER_DEFAULT_FLAG | READER_EMP_FLAG;
 	
@@ -201,21 +218,18 @@ mouse_boln readerClear(BufferPointer const readerPointer) {
 ***********************************************************
 * Function name: readerFree
 * Purpose: Releases the buffer address
+* Called functions: free()
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: free the memory taken by readerPointer
 *************************************************************
 */
 mouse_boln readerFree(BufferPointer const readerPointer) {
 	// Defensive programming
 	if (!readerPointer) 
 		return mouse_False; 
-	
 	// Free pointers
 	if (readerPointer->content) 
 		free(readerPointer->content);
@@ -232,21 +246,16 @@ mouse_boln readerFree(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: Checks full flag
 *************************************************************
 */
 mouse_boln readerIsFull(BufferPointer const readerPointer) {
 	// Defensive programming
 	if (!readerPointer)
 		return mouse_False;
-
 	// Check flag if buffer is full
 	if (readerPointer->flags & READER_FUL_FLAG)
 		return mouse_True;
-
 	return mouse_False;
 }
 
@@ -259,21 +268,16 @@ mouse_boln readerIsFull(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: Checks empty flag
 *************************************************************
 */
 mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
 	// Defensive programming
 	if (!readerPointer)
 		return mouse_False;
-
 	// Check flag if buffer is empty
 	if (readerPointer->flags & READER_EMP_FLAG)
 		return mouse_True;
-
 	return mouse_False;
 }
 
@@ -286,6 +290,7 @@ mouse_boln readerIsEmpty(BufferPointer const readerPointer) {
 *   mark = mark position for char
 * Return value:
 *	Boolean value about operation success
+* Algorithm: Updates mark value
 *************************************************************
 */
 mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
@@ -294,7 +299,6 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
 		return mouse_False;
 	if (mark < 0 || mark > readerPointer->position.wrte)
 		return mouse_False;
-    
 	// Update the mark position offset with the new value
 	readerPointer->position.mark = mark;
 	return mouse_True;
@@ -305,6 +309,7 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
 ***********************************************************
 * Function name: readerPrint
 * Purpose: Prints the string in the buffer.
+* Called functions: readerGetChar()
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 * Return value:
@@ -313,6 +318,7 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
 *   - Use defensive programming
 *	- Check boundary conditions
 *	- Adjust for your LANGUAGE.
+* Algorithm: print the content of readerPointer->content
 *************************************************************
 */
 mouse_int readerPrint(BufferPointer const readerPointer) {
@@ -334,11 +340,14 @@ mouse_int readerPrint(BufferPointer const readerPointer) {
 * Function name: readerLoad
 * Purpose: Loads the string in the buffer with the content of
 	an specific file.
+* Called functions: fgetc(), readerAddChar(), ungetc()
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 *   fileDescriptor = pointer to file descriptor
 * Return value:
 *	Number of chars read and put in buffer.
+* Algorithm: reads an input file and loads the content 
+*	into readerPointer
 *************************************************************
 */
 mouse_int readerLoad(BufferPointer const readerPointer, FILE* const fileDescriptor) {
@@ -371,13 +380,13 @@ mouse_int readerLoad(BufferPointer const readerPointer, FILE* const fileDescript
 *   readerPointer = pointer to Buffer Reader
 * Return value
 *	Boolean value about operation success
+* Algorithm: resets read and mark position
 *************************************************************
 */
 mouse_boln readerRecover(BufferPointer const readerPointer) {
 	// Defensive programming
 	if (!readerPointer)
 		return mouse_False;
-
 	// Recover positions
 	readerPointer->position.read = 0;
 	readerPointer->position.mark = 0;
@@ -393,21 +402,16 @@ mouse_boln readerRecover(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: unread one char from the reader
 *************************************************************
 */
 mouse_boln readerRetract(BufferPointer const readerPointer) {
 	// Defensive programming
     if (!readerPointer)
         return mouse_False;
-	
 	// If read is positive, decrement 
     if (readerPointer->position.read > 0)
         readerPointer->position.read--;
-	
 	return mouse_True;
 }
 
@@ -420,17 +424,13 @@ mouse_boln readerRetract(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: sets read to mark's offset
 *************************************************************
 */
 mouse_boln readerRestore(BufferPointer const readerPointer) {
 	 // Defensive programming
     if (!readerPointer)
         return mouse_False;
-
     // Restore read offset to the value of the current mark offset
 	readerPointer->position.read = readerPointer->position.mark;
 	return mouse_True;
@@ -445,6 +445,7 @@ mouse_boln readerRestore(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Char in the getC position.
+* Algorithm: reads the reader
 * TO_DO:
 *   - Use defensive programming
 *	- Check boundary conditions
@@ -471,6 +472,7 @@ mouse_char readerGetChar(BufferPointer const readerPointer) {
 *   pos = position to get the pointer
 * Return value:
 *	Position of string char.
+* Algorithm: returns a pointer to the location of the character reader
 *************************************************************
 */
 mouse_str readerGetContent(BufferPointer const readerPointer, mouse_int pos) {
@@ -479,8 +481,6 @@ mouse_str readerGetContent(BufferPointer const readerPointer, mouse_int pos) {
 		return NULL;
 	if ((pos < 0) || (pos > readerPointer->position.wrte)) 
 		return NULL;
-
-	/* TO_DO: Return content (string) (Done I think?) */
 	return readerPointer->content + pos;;
 }
 
@@ -494,9 +494,11 @@ mouse_str readerGetContent(BufferPointer const readerPointer, mouse_int pos) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	The read position offset.
+* Algorithm: gets read
 *************************************************************
 */
 mouse_int readerGetPosRead(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;			
 	return readerPointer->position.read;
@@ -511,9 +513,11 @@ mouse_int readerGetPosRead(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Write position
+* Algorithm: gets write
 *************************************************************
 */
 mouse_int readerGetPosWrte(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
 	return readerPointer->position.wrte;
@@ -528,9 +532,11 @@ mouse_int readerGetPosWrte(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Mark position.
+* Algorithm: gets mark
 *************************************************************
 */
 mouse_int readerGetPosMark(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
 	return readerPointer->position.mark;
@@ -545,9 +551,11 @@ mouse_int readerGetPosMark(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Size of buffer.
+* Algorithm: gets size
 *************************************************************
 */
 mouse_int readerGetSize(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
 	return readerPointer->size;
@@ -561,9 +569,11 @@ mouse_int readerGetSize(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	The Buffer increment
+* Algorithm: gets increment
 *************************************************************
 */
 mouse_int readerGetInc(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
 	return readerPointer->increment;
@@ -577,12 +587,13 @@ mouse_int readerGetInc(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Operational mode.
+* Algorithm: gets mode
 *************************************************************
 */
 mouse_int readerGetMode(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
-	/* TO_DO: Return mode (Done I think?) */
 	return readerPointer->mode;
 }
 
@@ -595,16 +606,14 @@ mouse_int readerGetMode(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Flags from Buffer.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
+* Algorithm: gets flags
 *************************************************************
 */
 mouse_byte readerGetFlags(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Return flags */
-	return 0;
+	// Defensive programming
+	if (!readerPointer)
+		return CHARSEOF;
+	return readerPointer->flags;
 }
 
 
@@ -613,16 +622,24 @@ mouse_byte readerGetFlags(BufferPointer const readerPointer) {
 ***********************************************************
 * Function name: readerPrintStat
 * Purpose: Shows the char statistic.
+* Called functions: printf()
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 * Return value: (Void)
+* Algorithm: prints the histogram
 *************************************************************
 */
 mouse_None readerPrintStat(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (readerPointer) 
+		// Printing data
 		for (mouse_int i = 0; i < NCHAR; i++) 
+			// Ensuring there are more then 0 of the character
 			if (readerPointer->histogram[i] > 0) 
-				printf("[%c]=%d\n", i, readerPointer->histogram[i]);
+				if (i=='\n')
+					printf("[\\n]=%d\n", readerPointer->histogram[i]); // Printing the newline character
+				else
+					printf("[%c]=%d\n", i, readerPointer->histogram[i]); // Printing every other character
 }
 
 /*
@@ -633,9 +650,11 @@ mouse_None readerPrintStat(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Number of errors.
+* Algorithm: gets number of errors
 *************************************************************
 */
 mouse_int readerNumErrors(BufferPointer const readerPointer) {
+	// Defensive programming
 	if (!readerPointer)
 		return CHARSEOF;
 	return readerPointer->numReaderErrors;

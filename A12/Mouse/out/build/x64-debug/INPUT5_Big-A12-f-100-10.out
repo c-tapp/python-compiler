@@ -40,15 +40,14 @@ Input file size: 32470
 
 Printing buffer parameters:
 
-The capacity of the buffer is:  100
-The current size of the buffer is:  100
+The capacity of the buffer is: 100
+The current size of the buffer is: 100
 The operational mode of the buffer is: f
-The increment factor of the buffer is:  10
-The first symbol in the buffer is:  #
-The value of the flags field is: 00
-Reader statistics : 
-[
-]=3
+The increment factor of the buffer is: 10
+The first symbol in the buffer is: #
+The value of the flags field is: 01
+Reader statistics: 
+[\n]=3
 [ ]=15
 ["]=2
 [#]=1

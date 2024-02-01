@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A12
-* Date: 01/29/24
+* Date: 01/02/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main header for the functions called by main function (.c)
 * Function list:
