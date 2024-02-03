@@ -342,9 +342,7 @@ mouse_int readerPrint(BufferPointer const readerPointer) {
 			// End of buffer reached, exit loop
 			break;
 		}
-	
 	}
-
 	return count;
 }
 
@@ -653,16 +651,26 @@ mouse_byte readerGetFlags(BufferPointer const readerPointer) {
 *************************************************************
 */
 mouse_None readerPrintStat(BufferPointer const readerPointer) {
+	mouse_int count = 1;
 	// Defensive programming
-	if (readerPointer) 
+	if (readerPointer) {
 		// Printing data
-		for (mouse_int i = 0; i < NCHAR; i++) 
+		for (mouse_int i = 0; i < NCHAR; i++) {
 			// Ensuring there are more then 0 of the character
-			if (readerPointer->histogram[i] > 0) 
-				if (i=='\n')
-					printf("[\\n]=%d\n", readerPointer->histogram[i]); // Printing the newline character
-				else
-					printf("[%c]=%d\n", i, readerPointer->histogram[i]); // Printing every other character
+			if (readerPointer->histogram[i] > 0) {
+				if (i == '\n') {
+					printf("[\\n]=%d  ", readerPointer->histogram[i]); // Printing the newline character
+				}
+				else {
+					printf("[%c]=%d  ", i, readerPointer->histogram[i]); // Printing every other character
+				}
+				if (count++ % 5 == 0) {
+					printf("\n");
+				}
+			}
+		}
+		printf("\n");
+	}
 }
 
 /*
