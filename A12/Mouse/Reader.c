@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A12
-* Date: 01/02/24
+* Date: 02/02/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main code for Reader (.c)
 * Function list:
@@ -137,7 +137,7 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, mouse_char ch) {
 	// Defensive programming
 	if (!readerPointer)
 		return NULL;
-	if ((ch < 0) || (ch > 128))
+	if ((ch < 0) || (ch >= NCHAR))
 		return NULL;
 
 	readerPointer->flags = readerPointer->flags & (!READER_REL_FLAG); // Reset REL
@@ -314,24 +314,37 @@ mouse_boln readerSetMark(BufferPointer const readerPointer, mouse_int mark) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Number of chars printed.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 * Algorithm: print the content of readerPointer->content
 *************************************************************
 */
 mouse_int readerPrint(BufferPointer const readerPointer) {
 	mouse_int count = 0;
 	mouse_char c;
-	/* TO_DO: Defensive programming (including invalid chars) */
-	c = readerGetChar(readerPointer);
-	/* TO_DO: Check flag if buffer EOB has achieved */
+    
+	// Defensive Programming
+	if (!readerPointer)
+		return READER_ERROR;
+
 	while (count < readerPointer->position.wrte) {
-		count++;
-		printf("%c", c);
 		c = readerGetChar(readerPointer);
+
+		// Checking for valid char (0-127)
+		if ((c >= 0 && c < NCHAR)) {
+			printf("%c", c);
+			count++;
+		} else {
+			// Invalid char
+			return READER_ERROR;
+		}
+		
+		// Check if EOB flag is set
+		if (readerPointer->flags & READER_END_FLAG) {
+			// End of buffer reached, exit loop
+			break;
+		}
+	
 	}
+
 	return count;
 }
 
@@ -446,19 +459,29 @@ mouse_boln readerRestore(BufferPointer const readerPointer) {
 * Return value:
 *	Char in the getC position.
 * Algorithm: reads the reader
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 mouse_char readerGetChar(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Check condition to read/wrte */
-	/* TO_DO: Set EOB flag */
-	/* TO_DO: Reset EOB flag */
-	if (readerPointer->position.wrte>0)
+	
+	// Defensive programming
+	if (!readerPointer)
+		return READER_ERROR;
+	
+	// Check and set END bit
+	if (readerPointer->position.wrte == readerPointer->position.read) {
+		// Set END flag to 1
+		readerPointer->flags = (readerPointer->flags | READER_END_FLAG);
+		return READER_TERMINATOR;
+	}
+	
+	// Get current char and increment readPos
+	if (readerPointer->position.wrte>0) {
+		// Set END flag to 0
+		readerPointer->flags = (readerPointer->flags & (!READER_END_FLAG));
 		return readerPointer->content[readerPointer->position.read++];
+	} 
+		
+	// Return "\0" default
 	return READER_TERMINATOR;
 }
 
