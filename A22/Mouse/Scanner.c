@@ -98,10 +98,9 @@ static BufferPointer sourceBuffer;			/* Pointer to input source buffer */
  *		This function initializes the scanner using defensive programming.
  ***********************************************************
  */
- /* TO_DO: Follow the standard and adjust datatypes */
 
 mouse_int startScanner(BufferPointer psc_buf) {
-	/* TO_DO: Start histogram */
+	/* Start histogram */
 	for (mouse_int i=0; i<NUM_TOKENS;i++)
 		scData.scanHistogram[i] = 0;
 	/* Basic scanner initialization */
@@ -125,8 +124,6 @@ mouse_int startScanner(BufferPointer psc_buf) {
  */
 
 Token tokenizer(mouse_None) {
-
-	/* TO_DO: Follow the standard and adjust datatypes */
 
 	Token currentToken = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
 	mouse_char c;	/* input symbol */
@@ -156,6 +153,7 @@ Token tokenizer(mouse_None) {
 		case ' ':
 		case '\t':
 		case '\f':
+		case '\0':
 			break;
 		case '\n':
 			line++;
@@ -259,7 +257,6 @@ Token tokenizer(mouse_None) {
 	or #undef DEBUG is used - see the top of the file.
  ***********************************************************
  */
- /* TO_DO: Just change the datatypes */
 
 mouse_int nextState(mouse_int state, mouse_char c) {
 	mouse_int col;

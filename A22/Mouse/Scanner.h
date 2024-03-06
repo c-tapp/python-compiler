@@ -77,71 +77,71 @@ _______________________________________________________
 
 #define RTE_CODE 1  /* Value for run-time error */
 
-/* TO_DO: Define the number of tokens */
-#define NUM_TOKENS 13
+/* Define the number of tokens */
+#define NUM_TOKENS 12
 
-/* TO_DO: Define Token codes - Create your token classes */
+/* Define Token codes - Create your token classes */
 enum TOKENS {
 	ERR_T,		/*  0: Error token */
-	MNID_T,		/*  1: Method name identifier token (start: &) */
+	MNID_T,		/*  1: Method name identifier token */
 	INL_T,		/*  2: Integer literal token */
 	STR_T,		/*  3: String literal token */
-	LPR_T,		/*  4: Left parenthesis token */
-	RPR_T,		/*  5: Right parenthesis token */
-	LBR_T,		/*  6: Left brace token */
-	RBR_T,		/*  7: Right brace token */
-	KW_T,		/*  8: Keyword token */
-	EOS_T,		/*  9: End of statement (semicolon) */
-	RTE_T,		/* 10: Run-time error token */
-	SEOF_T,		/* 11: Source end-of-file token */
-	CMT_T		/* 12: Comment token */
+	FLT_T,		/*  4  Float literal token */
+	BLN_T,		/*  5. Boolean literal token */
+	LPR_T,		/*  6: Left parenthesis token */
+	RPR_T,		/*  7: Right parenthesis token */
+	KW_T,		/*	8: Keyword token */
+	RTE_T,		/*  9: Run-time error token */
+	SEOF_T,		/* 10: Source end-of-file token */
+	CMT_T		/* 11: Comment token */
 };
 
-/* TO_DO: Define the list of keywords */
+/* Define the list of keywords */
 static mouse_str tokenStrTable[NUM_TOKENS] = {
-	"ERR_T",
-	"MNID_T",
-	"INL_T",
-	"STR_T",
-	"LPR_T",
-	"RPR_T",
-	"LBR_T",
-	"RBR_T",
-	"KW_T",
-	"EOS_T",
-	"RTE_T",
-	"SEOF_T",
-	"CMT_T"
+	"ERR_T",		/*  0: Error token */
+	"MNID_T",		/*  1: Method name identifier token */
+	"INL_T",		/*  2: Integer literal token */
+	"STR_T",		/*  3: String literal token */
+	"FLT_T",		/*  4  Float literal token */
+	"BLN_T",		/*  5. Boolean literal token */
+	"LPR_T",		/*  6: Left parenthesis token */
+	"RPR_T",		/*  7: Right parenthesis token */
+	"KW_T",			/*	8: Keyword token */
+	"RTE_T",		/*  9: Run-time error token */
+	"SEOF_T",		/* 10: Source end-of-file token */
+	"CMT_T"			/* 11: Comment token */
 };
 
-/* TO_DO: Operators token attributes */
-typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV } AriOperator;
+/* Operators token attributes */
+typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD} AriOperator;
 typedef enum RelationalOperators { OP_EQ, OP_NE, OP_GT, OP_LT } RelOperator;
 typedef enum LogicalOperators { OP_AND, OP_OR, OP_NOT } LogOperator;
 typedef enum SourceEndOfFile { SEOF_0, SEOF_255 } EofOperator;
 
-/* TO_DO: Data structures for declaring the token and its attributes */
+/* Data structures for declaring the token and its attributes */
 typedef union TokenAttribute {
-	mouse_int codeType;      /* integer attributes accessor */
+	mouse_char errLexeme[ERR_LEN + 1];	/* error token attribite */
+	mouse_char idLexeme[VID_LEN + 1];	/* variable identifier token attribute */
+	mouse_int intValue;					/* integer literal attribute (value) */
+	mouse_int contentString;			/* string literal offset from the beginning of the string literal buffer (stringLiteralTable->content) */
+	mouse_float floatValue;				/* floating-point literal attribute (value) */
+	mouse_boln boolValue;				/* Boolean literal attribute */
+	mouse_int keywordIndex;				/* keyword index in the keyword table */
 	AriOperator arithmeticOperator;		/* arithmetic operator attribute code */
 	RelOperator relationalOperator;		/* relational operator attribute code */
 	LogOperator logicalOperator;		/* logical operator attribute code */
 	EofOperator seofType;				/* source-end-of-file attribute code */
-	mouse_int intValue;				/* integer literal attribute (value) */
-	mouse_int keywordIndex;			/* keyword index in the keyword table */
-	mouse_int contentString;			/* string literal offset from the beginning of the string literal buffer (stringLiteralTable->content) */
-	mouse_float floatValue;				/* floating-point literal attribute (value) */
-	mouse_char idLexeme[VID_LEN + 1];	/* variable identifier token attribute */
-	mouse_char errLexeme[ERR_LEN + 1];	/* error token attribite */
+	mouse_int codeType;					/* integer attributes accessor */
 } TokenAttribute;
 
-/* TO_DO: Should be used if no symbol table is implemented */
+/* Should be used if no symbol table is implemented */
 typedef struct idAttibutes {
 	mouse_byte flags;			/* Flags information */
 	union {
 		mouse_int intValue;				/* Integer value */
 		mouse_float floatValue;			/* Float value */
 		mouse_str stringContent;		/* String value */
+		mouse_boln boolValue			/* Boolean value */
 	} values;
 } IdAttibutes;
 
@@ -170,8 +170,9 @@ typedef struct scannerData {
 /* These constants will be used on nextClass */
 #define CHRCOL2 '_'
 #define CHRCOL3 '&'
-#define CHRCOL4 '\''
-#define CHRCOL6 '#'
+#define CHRCOL4 '\"'
+#define CHRCOL5 '|'
+//#define CHRCOL6 '#'
 
 /* These constants will be used on VID / MID function */
 #define MNID_SUF '&'
@@ -270,21 +271,30 @@ Language keywords
 -------------------------------------------------
 */
 
-/* TO_DO: Define the number of Keywords from the language */
-#define KWT_SIZE 10
+/* Define the number of Keywords from the language */
+#define KWT_SIZE 19
 
-/* TO_DO: Define the list of keywords */
+/* Define the list of keywords */
 static mouse_str keywordTable[KWT_SIZE] = {
-	"data",		/* KW00 */
-	"code",		/* KW01 */
-	"int",		/* KW02 */
-	"real",		/* KW03 */
-	"string",	/* KW04 */
-	"if",		/* KW05 */
-	"then",		/* KW06 */
-	"else",		/* KW07 */
-	"while",	/* KW08 */
-	"do"		/* KW09 */
+	"int",		/* KW00 */
+	"float",	/* KW01 */
+	"str",		/* KW02 */
+	"bool",		/* KW03 */
+	"True",		/* KW04 */
+	"False",	/* KW05 */
+	"None",		/* KW06 */
+	"if",		/* KW07 */
+	"elif",		/* KW08 */
+	"else",		/* KW09 */
+	"while",	/* KW10 */
+	"for",		/* KW11 */
+	"def",		/* KW12 */
+	"return",	/* KW13 */
+	"break",	/* KW14 */
+	"continue",	/* KW15 */
+	"pass",		/* KW16 */
+	"and",		/* KW17 */
+	"or"		/* KW18 */
 };
 
 /* NEW SECTION: About indentation */
@@ -295,11 +305,10 @@ static mouse_str keywordTable[KWT_SIZE] = {
 
 #define INDENT '\t'  /* Tabulation */
 
-/* TO_DO: Should be used if no symbol table is implemented */
+/* Should be used if no symbol table is implemented */
 typedef struct languageAttributes {
 	mouse_char indentationCharType;
 	mouse_int indentationCurrentPos;
-	/* TO_DO: Include any extra attribute to be used in your scanner (OPTIONAL and FREE) */
 } LanguageAttributes;
 
 /* Number of errors */

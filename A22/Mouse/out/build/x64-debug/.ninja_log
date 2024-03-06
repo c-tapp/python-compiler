@@ -1,12 +1,14 @@
 # ninja log v5
 4	746	7283050920487082	CMakeFiles/Mouse.dir/Mouse.cpp.obj	7ba886a12dca6c84
-71	175	7286456003527305	Mouse.exe	f3003b5ec94c0176
-9	71	7286456002775424	CMakeFiles/Mouse.dir/Compilers.c.obj	e876cd63e5e81167
-18	386	7286453713469214	CMakeFiles/Mouse.dir/MainReader.c.obj	7dfb26983985daa6
-16	385	7286453713469214	CMakeFiles/Mouse.dir/Reader.c.obj	274b599c778c6f32
-7	381	7313227591190913	CMakeFiles/Mouse.dir/Reader.c.obj	274b599c778c6f32
+92	303	7313230081897152	Mouse.exe	7d36c77b2f6bff16
 3	383	7313227591190913	CMakeFiles/Mouse.dir/Compilers.c.obj	e876cd63e5e81167
 10	383	7313227591190913	CMakeFiles/Mouse.dir/MainReader.c.obj	7dfb26983985daa6
+7	381	7313227591190913	CMakeFiles/Mouse.dir/Reader.c.obj	274b599c778c6f32
 13	90	7313230080333851	CMakeFiles/Mouse.dir/MainScanner.c.obj	1b76c1a6c9658aff
 9	92	7313230080359926	CMakeFiles/Mouse.dir/Scanner.c.obj	5936e0f36d612703
-92	303	7313230081897152	Mouse.exe	7d36c77b2f6bff16
+53	512	7313845875945319	CMakeFiles/Mouse.dir/Scanner.c.obj	49a75bdc624373cc
+20	514	7313845875915327	CMakeFiles/Mouse.dir/Compilers.c.obj	17a3201a77b75050
+45	515	7313845875935319	CMakeFiles/Mouse.dir/MainReader.c.obj	42679bafb484826f
+62	516	7313845875925323	CMakeFiles/Mouse.dir/MainScanner.c.obj	23f524de5a4129f4
+37	516	7313845875945319	CMakeFiles/Mouse.dir/Reader.c.obj	7290e1884de2bf8e
+517	854	7313845878625317	Mouse.exe	1998076ec6b51e85
