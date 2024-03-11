@@ -173,6 +173,10 @@ Token tokenizer(mouse_None) {
 			currentToken.code = RPR_T;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
+		case ':':
+			currentToken.code = COL_T;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
 			currentToken.code = SEOF_T;
@@ -343,11 +347,12 @@ mouse_int nextClass(mouse_char c) {
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm: Once the TT detects the comment this fucntion double
+*	checks that it ends in newline and adds the CMT_T code to the
+*	lexeme
 *************************************************************
 */
 Token funcCMT(mouse_str lexeme) {
-	/* TO_DO: Adjust the function for COM */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	currentToken.attribute.contentString = readerGetPosWrte(stringLiteralTable);
@@ -419,13 +424,14 @@ Token funcID(mouse_str lexeme) {
 	mouse_int isID = mouse_False;
 	switch (lastch) {
 		case MNID_SUF:
+			readerRetract(sourceBuffer);
 			currentToken.code = MNID_T;
 			scData.scanHistogram[currentToken.code]++;
 			isID = mouse_True;
 			break;
 		default:
 			// Test Keyword
-			lexeme[length - 1] = '\0';
+			//lexeme[length - 1] = '\0';
 			currentToken = funcKEY(lexeme);
 			break;
 	}
@@ -455,11 +461,12 @@ Token funcID(mouse_str lexeme) {
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm:  Once the TT detects the string this fucntion double
+*	checks that it has no RTE and adds the STR_T code to the
+*	lexeme
 *************************************************************
 */
 Token funcSL(mouse_str lexeme) {
-	/* TO_DO: Adjust the function for SL */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	currentToken.attribute.contentString = readerGetPosWrte(stringLiteralTable);
@@ -502,19 +509,16 @@ Token funcSL(mouse_str lexeme) {
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm: Once the funcID detects it's not a method this 
+*	fucntion double checks if its a keyword and adds the KW_T 
+*	code to the lexeme
 *************************************************************
 */
 Token funcKEY(mouse_str lexeme) {
-	/* 
-	TO_DO: Adjust the function for Keywords 
-	Tip: Remember to use the keywordTable to check the keywords.
-	*/
-
 	Token currentToken = { 0 };
 	mouse_int kwindex = -1, j = 0;
 	mouse_int len = (mouse_int)strlen(lexeme);
-	lexeme[len - 1] = '\0';
+	//lexeme[len - 1] = '\0';
 	for (j = 0; j < KWT_SIZE; j++)
 		if (!strcmp(lexeme, &keywordTable[j][0]))
 			kwindex = j;
@@ -537,11 +541,11 @@ Token funcKEY(mouse_str lexeme) {
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm: If an invalid location in reached in the TT
+*	this fucnction is called to deal with that lexeme
 *************************************************************
 */
 Token funcErr(mouse_str lexeme) {
-	/* TO_DO: Adjust the function for Errors */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	if (len > ERR_LEN) {

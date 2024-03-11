@@ -78,7 +78,7 @@ _______________________________________________________
 #define RTE_CODE 1  /* Value for run-time error */
 
 /* Define the number of tokens */
-#define NUM_TOKENS 12
+#define NUM_TOKENS 13
 
 /* Define Token codes - Create your token classes */
 enum TOKENS {
@@ -90,10 +90,11 @@ enum TOKENS {
 	BLN_T,		/*  5. Boolean literal token */
 	LPR_T,		/*  6: Left parenthesis token */
 	RPR_T,		/*  7: Right parenthesis token */
-	KW_T,		/*	8: Keyword token */
-	RTE_T,		/*  9: Run-time error token */
-	SEOF_T,		/* 10: Source end-of-file token */
-	CMT_T		/* 11: Comment token */
+	COL_T,		/*  8: Colon token */
+	KW_T,		/*	9: Keyword token */
+	RTE_T,		/* 10: Run-time error token */
+	SEOF_T,		/* 11: Source end-of-file token */
+	CMT_T		/* 12: Comment token */
 };
 
 /* Define the list of keywords */
@@ -106,10 +107,11 @@ static mouse_str tokenStrTable[NUM_TOKENS] = {
 	"BLN_T",		/*  5. Boolean literal token */
 	"LPR_T",		/*  6: Left parenthesis token */
 	"RPR_T",		/*  7: Right parenthesis token */
-	"KW_T",			/*	8: Keyword token */
-	"RTE_T",		/*  9: Run-time error token */
-	"SEOF_T",		/* 10: Source end-of-file token */
-	"CMT_T"			/* 11: Comment token */
+	"COL_T",		/*  8: Colon token */
+	"KW_T",			/*	9: Keyword token */
+	"RTE_T",		/* 10: Run-time error token */
+	"SEOF_T",		/* 11: Source end-of-file token */
+	"CMT_T"			/* 12: Comment token */
 };
 
 /* Operators token attributes */
@@ -179,7 +181,7 @@ typedef struct scannerData {
 #define CHRCOL10 '_'
 
 /* These constants will be used on VID / MID function */
-#define MNID_SUF '&'
+#define MNID_SUF '('
 #define COMM_SYM '#'
 
 /* Error states and illegal state */
@@ -208,7 +210,7 @@ static mouse_int transitionTable[NUM_STATES][CHAR_CLASSES] = {
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S10: FSWR (FL)
 	{    13,   11,   12,   11,   12,   12,   12,   12,   12,   12,   11,   12,   12},   // S11: NOFS
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S12: FSWR (ID / Key)
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S13: FSWR (MID)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S13: FSNR (MID) - No Retract due to retract implimented in FuncID
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S14: FSNR (ER1)
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}    // S15: FSWR (ER2)
 };
@@ -233,7 +235,7 @@ static mouse_int stateType[NUM_STATES] = {
 	FSWR,	// (10) Float Literal
 	NOFS,	// (11) No Final State
 	FSWR,	// (12) ID - Variables & Keywords
-	FSWR,	// (13) MID - Methods
+	FSNR,	// (13) MID - Methods - No Retract due to retract implimented in FuncID
 	FSNR,	// (14) Err1 - No Retract
 	FSWR	// (15) Err2 - With Retract
 };
