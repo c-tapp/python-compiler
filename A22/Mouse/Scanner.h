@@ -141,7 +141,7 @@ typedef struct idAttibutes {
 		mouse_int intValue;				/* Integer value */
 		mouse_float floatValue;			/* Float value */
 		mouse_str stringContent;		/* String value */
-		mouse_boln boolValue			/* Boolean value */
+		mouse_boln boolValue;			/* Boolean value */
 	} values;
 } IdAttibutes;
 

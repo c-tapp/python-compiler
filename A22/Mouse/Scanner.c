@@ -93,12 +93,16 @@ static BufferPointer lexemeBuffer;			/* Pointer to temporary lexeme buffer */
 static BufferPointer sourceBuffer;			/* Pointer to input source buffer */
 
 /*
- ************************************************************
- * Intitializes scanner
- *		This function initializes the scanner using defensive programming.
- ***********************************************************
- */
-
+***********************************************************
+* Function name: startScanner
+* Purpose: This function initializes the scanner 
+* Called functions: readerRecover(), readerClear()
+* Parameters:
+*   psc_buf = Pointer to the buffer
+* Return value: EXIT_SUCCESS (Let calling function know it's done)
+* Algorithm: Initilases the histogram and reader
+*************************************************************
+*/
 mouse_int startScanner(BufferPointer psc_buf) {
 	/* Start histogram */
 	for (mouse_int i=0; i<NUM_TOKENS;i++)
@@ -109,27 +113,29 @@ mouse_int startScanner(BufferPointer psc_buf) {
 	readerClear(stringLiteralTable);
 	line = 1;
 	sourceBuffer = psc_buf;
-	return EXIT_SUCCESS; /*0*/
+	return EXIT_SUCCESS; 
 }
 
 /*
- ************************************************************
- * Process Token
- *		Main function of buffer, responsible to classify a char (or sequence
- *		of chars). In the first part, a specific sequence is detected (reading
- *		from buffer). In the second part, a pattern (defined by Regular Expression)
- *		is recognized and the appropriate function is called (related to final states 
- *		in the Transition Diagram).
- ***********************************************************
- */
-
+***********************************************************
+* Function name: tokenizer
+* Purpose: responsible to classify a char (or sequence of chars)
+* Called functions: readerGetChar(), nextState(), readerGetPosRead(), 
+*	readerSetMark(), readerRetract(), readerCreate(), fprintf(),
+*	exit(), readerRestore(), readerAddChar(), readerGetContent(),
+*	TO_DO: Add any more as needed
+* Return value: currentToken (The token being worked on with updated parameters)
+* Algorithm: detects a specific sequence and recognises any patterns then calls 
+*	the appropriate function
+*************************************************************
+*/
 Token tokenizer(mouse_None) {
 
 	Token currentToken = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
-	mouse_char c;	/* input symbol */
+	mouse_char c;				/* input symbol */
 	mouse_int state = 0;		/* initial state of the FSM */
-	mouse_int lexStart;		/* start offset of a lexeme in the input char buffer (array) */
-	mouse_int lexEnd;		/* end offset of a lexeme in the input char buffer (array)*/
+	mouse_int lexStart;			/* start offset of a lexeme in the input char buffer (array) */
+	mouse_int lexEnd;			/* end offset of a lexeme in the input char buffer (array)*/
 
 	mouse_int lexLength;		/* token length */
 	mouse_int i;				/* counter */
@@ -153,17 +159,12 @@ Token tokenizer(mouse_None) {
 		case ' ':
 		case '\t':
 		case '\f':
-		case '\0':
 			break;
 		case '\n':
 			line++;
 			break;
 
 		/* Cases for symbols */
-		case ';':
-			currentToken.code = EOS_T;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
 		case '(':
 			currentToken.code = LPR_T;
 			scData.scanHistogram[currentToken.code]++;
@@ -173,13 +174,6 @@ Token tokenizer(mouse_None) {
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '{':
-			currentToken.code = LBR_T;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
-		case '}':
-			currentToken.code = RBR_T;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
 			currentToken.code = SEOF_T;
@@ -232,32 +226,19 @@ Token tokenizer(mouse_None) {
 
 } // tokenizer
 
-
 /*
- ************************************************************
- * Get Next State
-	The assert(int test) macro can be used to add run-time diagnostic to programs
-	and to "defend" from producing unexpected results.
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	(*) assert() is a macro that expands to an if statement;
-	if test evaluates to false (zero) , assert aborts the program
-	(by calling abort()) and sends the following message on stderr:
-	(*) Assertion failed: test, file filename, line linenum.
-	The filename and linenum listed in the message are the source file name
-	and line number where the assert macro appears.
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	If you place the #define NDEBUG directive ("no debugging")
-	in the source code before the #include <assert.h> directive,
-	the effect is to comment out the assert statement.
-	- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	The other way to include diagnostics in a program is to use
-	conditional preprocessing as shown bellow. It allows the programmer
-	to send more details describing the run-time problem.
-	Once the program is tested thoroughly #define DEBUG is commented out
-	or #undef DEBUG is used - see the top of the file.
- ***********************************************************
- */
-
+***********************************************************
+* Function name: nextState
+* Purpose: Reads a token char by char to find its class
+* Called functions: nextClass(), printf(), exit()
+* Parameters:
+*   state = The current state
+*	c = the current char
+* Return value: 
+* Algorithm: Reads a token char by char and uses the 
+*	transitionTable matrix to validate its class
+*************************************************************
+*/
 mouse_int nextState(mouse_int state, mouse_char c) {
 	mouse_int col;
 	mouse_int next;
@@ -273,23 +254,49 @@ mouse_int nextState(mouse_int state, mouse_char c) {
 			exit(1);
 		}
 	return next;
+	/*
+	************************************************************
+	* Get Next State
+		The assert(int test) macro can be used to add run-time diagnostic to programs
+		and to "defend" from producing unexpected results.
+		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		(*) assert() is a macro that expands to an if statement;
+		if test evaluates to false (zero) , assert aborts the program
+		(by calling abort()) and sends the following message on stderr:
+		(*) Assertion failed: test, file filename, line linenum.
+		The filename and linenum listed in the message are the source file name
+		and line number where the assert macro appears.
+		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		If you place the #define NDEBUG directive ("no debugging")
+		in the source code before the #include <assert.h> directive,
+		the effect is to comment out the assert statement.
+		- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+		The other way to include diagnostics in a program is to use
+		conditional preprocessing as shown bellow. It allows the programmer
+		to send more details describing the run-time problem.
+		Once the program is tested thoroughly #define DEBUG is commented out
+		or #undef DEBUG is used - see the top of the file.
+	***********************************************************
+	*/
 }
 
 /*
- ************************************************************
- * Get Next Token Class
-	* Create a function to return the column number in the transition table:
-	* Considering an input char c, you can identify the "class".
-	* For instance, a letter should return the column for letters, etc.
- ***********************************************************
- */
-/* TO_DO: Use your column configuration */
-
+***********************************************************
+* Function name: nextClass()
+* Purpose: return next column in TT
+* Called functions: isalpha(), isdigit()
+*	TO_DO: Add any more as needed
+* Parameters:
+*	c = The char being tested
+* Return value: val (which column of the TT the char is from)
+* Algorithm: Checks against each CHARCOL entry 
+*************************************************************
+*/
+mouse_int nextClass(mouse_char c) {
+	/* TO_DO: Use your column configuration */
 /* Adjust the logic to return next column in TT */
 /*    [A-z],[0-9],    _,    &,   \', SEOF,    #, other
 	   L(0), D(1), U(2), M(3), Q(4), E(5), C(6),  O(7) */
-
-mouse_int nextClass(mouse_char c) {
 	mouse_int val = -1;
 	switch (c) {
 	case CHRCOL2:
@@ -301,8 +308,8 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL4:
 		val = 4;
 		break;
-	case CHRCOL6:
-		val = 6;
+	case CHRCOL5:
+		val = 5;
 		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
@@ -320,14 +327,18 @@ mouse_int nextClass(mouse_char c) {
 }
 
 /*
- ************************************************************
- * Acceptance State Function COM
- *		Function responsible to identify COM (comments).
- ***********************************************************
- */
- /* TO_DO: Adjust the function for IL */
-
+***********************************************************
+* Function name: funcCMT
+* Purpose: Responsible to identify comments
+* Called functions: strlen(), readerGetPosWrte()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcCMT(mouse_str lexeme) {
+	/* TO_DO: Adjust the function for COM */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	currentToken.attribute.contentString = readerGetPosWrte(stringLiteralTable);
@@ -340,20 +351,19 @@ Token funcCMT(mouse_str lexeme) {
 	return currentToken;
 }
 
-
- /*
-  ************************************************************
-  * Acceptance State Function IL
-  *		Function responsible to identify IL (integer literals).
-  * - It is necessary respect the limit (ex: 2-byte integer in C).
-  * - In the case of larger lexemes, error shoul be returned.
-  * - Only first ERR_LEN characters are accepted and eventually,
-  *   additional three dots (...) should be put in the output.
-  ***********************************************************
-  */
-  /* TO_DO: Adjust the function for IL */
-
+/*
+***********************************************************
+* Function name: funcIL
+* Purpose: Responsible to identify integer literals
+* Called functions: strlen(), atol()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcIL(mouse_str lexeme) {
+	/* TO_DO: Adjust the function for IL */
 	Token currentToken = { 0 };
 	mouse_long tlong;
 	if (lexeme[0] != '\0' && strlen(lexeme) > NUM_LEN) {
@@ -371,24 +381,29 @@ Token funcIL(mouse_str lexeme) {
 		}
 	}
 	return currentToken;
-}
-
-
 /*
  ************************************************************
- * Acceptance State Function ID
- *		In this function, the pattern for IDs must be recognized.
- *		Since keywords obey the same pattern, is required to test if
- *		the current lexeme matches with KW from language.
- *	- Remember to respect the limit defined for lexemes (VID_LEN) and
- *	  set the lexeme to the corresponding attribute (vidLexeme).
- *    Remember to end each token with the \0.
- *  - Suggestion: Use "strncpy" function.
+ * - It is necessary respect the limit (ex: 2-byte integer in C).
+ * - In the case of larger lexemes, error shoul be returned.
+ * - Only first ERR_LEN characters are accepted and eventually,
+ *   additional three dots (...) should be put in the output.
  ***********************************************************
  */
- /* TO_DO: Adjust the function for ID */
+}
 
+/*
+***********************************************************
+* Function name: funcID
+* Purpose: Responsible to identify the pattern for IDs
+* Called functions: strlen(), funcKEY(), strncpy()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcID(mouse_str lexeme) {
+	/* TO_DO: Adjust the function for ID */
 	Token currentToken = { 0 };
 	size_t length = strlen(lexeme);
 	mouse_char lastch = lexeme[length - 1];
@@ -410,22 +425,32 @@ Token funcID(mouse_str lexeme) {
 		currentToken.attribute.idLexeme[VID_LEN] = CHARSEOF0;
 	}
 	return currentToken;
-}
-
-
 /*
-************************************************************
- * Acceptance State Function SL
- *		Function responsible to identify SL (string literals).
- * - The lexeme must be stored in the String Literal Table 
- *   (stringLiteralTable). You need to include the literals in 
- *   this structure, using offsets. Remember to include \0 to
- *   separate the lexemes. Remember also to incremente the line.
+ ************************************************************
+ *		Since keywords obey the same pattern, is required to test if
+ *		the current lexeme matches with KW from language.
+ *	- Remember to respect the limit defined for lexemes (VID_LEN) and
+ *	  set the lexeme to the corresponding attribute (vidLexeme).
+ *    Remember to end each token with the \0.
+ *  - Suggestion: Use "strncpy" function.
  ***********************************************************
  */
-/* TO_DO: Adjust the function for SL */
+}
 
+/*
+***********************************************************
+* Function name: funcSL
+* Purpose: Responsible to identify string literals
+* Called functions: strlen(), readerGetPosWrte(),
+*	readerAddChar(), strcpy()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcSL(mouse_str lexeme) {
+	/* TO_DO: Adjust the function for SL */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	currentToken.attribute.contentString = readerGetPosWrte(stringLiteralTable);
@@ -450,18 +475,33 @@ Token funcSL(mouse_str lexeme) {
 	currentToken.code = STR_T;
 	scData.scanHistogram[currentToken.code]++;
 	return currentToken;
-}
-
-
 /*
 ************************************************************
- * This function checks if one specific lexeme is a keyword.
- * - Tip: Remember to use the keywordTable to check the keywords.
+ * - The lexeme must be stored in the String Literal Table
+ *   (stringLiteralTable). You need to include the literals in
+ *   this structure, using offsets. Remember to include \0 to
+ *   separate the lexemes. Remember also to incremente the line.
  ***********************************************************
  */
- /* TO_DO: Adjust the function for Keywords */
+}
 
+/*
+***********************************************************
+* Function name: funcKEY
+* Purpose: Responsible to identify keywords
+* Called functions: strcmp(), funcErr()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcKEY(mouse_str lexeme) {
+	/* 
+	TO_DO: Adjust the function for Keywords 
+	Tip: Remember to use the keywordTable to check the keywords.
+	*/
+
 	Token currentToken = { 0 };
 	mouse_int kwindex = -1, j = 0;
 	mouse_int len = (mouse_int)strlen(lexeme);
@@ -480,20 +520,19 @@ Token funcKEY(mouse_str lexeme) {
 	return currentToken;
 }
 
-
 /*
-************************************************************
- * Acceptance State Function Error
- *		Function responsible to deal with ERR token.
- * - This function uses the errLexeme, respecting the limit given
- *   by ERR_LEN. If necessary, use three dots (...) to use the
- *   limit defined. The error lexeme contains line terminators,
- *   so remember to increment line.
- ***********************************************************
- */
- /* TO_DO: Adjust the function for Errors */
-
+***********************************************************
+* Function name: funcErr
+* Purpose: Responsible to identify errors
+* Called functions: strlen(), strncpy(), strcat(), strcpy()
+* Parameters:
+*   lexeme = The current lexeme being worked on
+* Return value: currentToken (The token with it's updated data)
+* Algorithm: TO_DO
+*************************************************************
+*/
 Token funcErr(mouse_str lexeme) {
+	/* TO_DO: Adjust the function for Errors */
 	Token currentToken = { 0 };
 	mouse_int i = 0, len = (mouse_int)strlen(lexeme);
 	if (len > ERR_LEN) {
@@ -510,16 +549,31 @@ Token funcErr(mouse_str lexeme) {
 	currentToken.code = ERR_T;
 	scData.scanHistogram[currentToken.code]++;
 	return currentToken;
-}
-
-
 /*
- ************************************************************
- * The function prints the token returned by the scanner
+************************************************************
+ * - This function uses the errLexeme, respecting the limit given
+ *   by ERR_LEN. If necessary, use three dots (...) to use the
+ *   limit defined. The error lexeme contains line terminators,
+ *   so remember to increment line.
  ***********************************************************
  */
+}
 
+/*
+***********************************************************
+* Function name: printToken
+* Purpose: prints the token returned by the scanner
+* Called functions: printf(), exit(), readerGetContent()
+*	TO_DO: Add any more as needed
+* Parameters:
+*   t = Token in question
+* Return value: Prints the token and its info
+* Algorithm: Checks the token's code parameter and uses a 
+*	case function to determine how to print it
+*************************************************************
+*/
 mouse_None printToken(Token t) {
+	/* TO_DO: Adjust / check the logic for your language */
 	extern mouse_str keywordTable[]; /* link to keyword table in */
 	switch (t.code) {
 	case RTE_T:
@@ -550,20 +604,11 @@ mouse_None printToken(Token t) {
 	case RPR_T:
 		printf("RPR_T\n");
 		break;
-	case LBR_T:
-		printf("LBR_T\n");
-		break;
-	case RBR_T:
-		printf("RBR_T\n");
-		break;
 	case KW_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
 		break;
 	case CMT_T:
 		printf("CMT_T\n");
-		break;
-	case EOS_T:
-		printf("EOS_T\n");
 		break;
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
@@ -571,14 +616,17 @@ mouse_None printToken(Token t) {
 }
 
 /*
- ************************************************************
- * The function prints statistics of tokens
- * Param:
- *	- Scanner data
- * Return:
- *	- Void (procedure)
- ***********************************************************
- */
+***********************************************************
+* Function name: printScannerData()
+* Purpose: prints statistics of tokens
+* Called functions: printf()
+* Parameters: 
+*   scData = The scanner data struct
+* Return value: Prints the Statistics table
+* Algorithm: Scans the Histogram for each token and it's type
+*	and prints how many appear
+*************************************************************
+*/
 mouse_None printScannerData(ScannerData scData) {
 	/* Print Scanner statistics */
 	printf("Statistics:\n");
@@ -590,7 +638,3 @@ mouse_None printScannerData(ScannerData scData) {
 	}
 	printf("----------------------------------\n");
 }
-
-/*
-TO_DO: (If necessary): HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
-*/
