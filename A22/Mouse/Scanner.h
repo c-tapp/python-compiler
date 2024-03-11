@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A22
-* Date: 03/05/24
+* Date: 03/11/24
 * Professor: Paulo Sousa
 * Purpose: This file is the main header for Scanner (.h)
 * Function list: startScanner(), nextClass(), nextState(),
@@ -166,41 +166,51 @@ typedef struct scannerData {
 /*  Special case tokens processed separately one by one in the token-driven part of the scanner:
  *  LPR_T, RPR_T, LBR_T, RBR_T, EOS_T, SEOF_T and special chars used for tokenis include _, & and ' */
 
-/* TO_DO: Define lexeme FIXED classes */
+/* Define lexeme FIXED classes */
 /* These constants will be used on nextClass */
-#define CHRCOL2 '_'
-#define CHRCOL3 '&'
-#define CHRCOL4 '\"'
-#define CHRCOL5 '|'
-//#define CHRCOL6 '#'
+#define CHRCOL0  '('
+#define CHRCOL2  '#'
+#define CHRCOL4  '\n'
+#define CHRCOL5  '+'
+#define CHRCOL6  '-'
+#define CHRCOL7  '.'
+#define CHRCOL8  ','
+#define CHRCOL9  '\"'
+#define CHRCOL10 '_'
 
 /* These constants will be used on VID / MID function */
 #define MNID_SUF '&'
 #define COMM_SYM '#'
 
-/* TO_DO: Error states and illegal state */
+/* Error states and illegal state */
 #define ESNR	8		/* Error state with no retract */
 #define ESWR	9		/* Error state with retract */
 #define FS		10		/* Illegal state */
 
- /* TO_DO: State transition table definition */
-#define NUM_STATES		10
-#define CHAR_CLASSES	8
+ /* State transition table definition */
+#define NUM_STATES		16
+#define CHAR_CLASSES	13
 
-/* TO_DO: Transition table - type of states defined in separate table */
+/* Transition table - type of states defined in separate table */
 static mouse_int transitionTable[NUM_STATES][CHAR_CLASSES] = {
-/*    [A-z],[0-9],    _,    &,   \', SEOF,    #, other
-	   L(0), D(1), U(2), M(3), Q(4), E(5), C(6),  O(7) */
-	{     1, ESNR, ESNR, ESNR,    4, ESWR,	  6, ESNR},	// S0: NOAS
-	{     1,    1,    1,    2,	  3,    3,   3,    3},	// S1: NOAS
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS},	// S2: ASNR (MVID)
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS},	// S3: ASWR (KEY)
-	{     4,    4,    4,    4,    5, ESWR,	  4,    4},	// S4: NOAS
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS},	// S5: ASNR (SL)
-	{     6,    6,    6,    6,    6, ESWR,	  7,    6},	// S6: NOAS
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS},	// S7: ASNR (COM)
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS},	// S8: ASNR (ES)
-	{    FS,   FS,   FS,   FS,   FS,   FS,	 FS,   FS}  // S9: ASWR (ER)
+/*      (  ,[0-9],  #  ,[A-Z], \n  ,  +  ,  -  , (.) , (,) ,  "  ,  _  ,other, EOF
+	  B1(0), D(1), H(2), L(3), N(4),O1(5),O2(6),P1(7),P2(8), Q(9),U(10),Z(11), (12)*/
+	{  ESNR,    5,    1,   11, ESNR,    7,    7, ESNR, ESNR,    3, ESNR, ESNR, ESWR},	// S0:  NOFS
+	{     1,    1,    1,    1,    2,    1,    1,    1,    1,    1,    1,    1, ESWR},	// S1:  NOFS
+	{	 FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S2:  FSNR (COM)
+	{     3,    3,    3,    3,    3,    3,    3,    3,    3,    4,    3,    3,    3},	// S3:  NOFS 
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S4:  FSNR (SL)
+	{     6,    5,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6},	// S5:  NOFS 
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S6:  FSWR (IL)
+	{  ESNR,    5, ESNR, ESNR, ESNR, ESNR, ESNR,    8, ESNR, ESNR, ESNR, ESNR, ESNR},	// S7:  NOFS
+	{  ESNR,    9, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR},	// S8:  NOFS
+	{    10,    9,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10},   // S9:  NOFS
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S10: FSWR (FL)
+	{    13,   11,   12,   11,   12,   12,   12,   12,   12,   12,   11,   12,   12},   // S11: NOFS
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S12: FSWR (ID / Key)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S13: FSWR (MID)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S14: FSNR (ER1)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}    // S15: FSWR (ER2)
 };
 
 /* Define accepting states types */
@@ -208,18 +218,24 @@ static mouse_int transitionTable[NUM_STATES][CHAR_CLASSES] = {
 #define FSNR	1		/* accepting state with no retract */
 #define FSWR	2		/* accepting state with retract */
 
-/* TO_DO: Define list of acceptable states */
+/* Define list of acceptable states */
 static mouse_int stateType[NUM_STATES] = {
-	NOFS, /* 00 */
-	NOFS, /* 01 */
-	FSNR, /* 02 (MID) - Methods */
-	FSWR, /* 03 (KEY) */
-	NOFS, /* 04 */
-	FSNR, /* 05 (SL) */
-	NOFS, /* 06 */
-	FSNR, /* 07 (COM) */
-	FSNR, /* 08 (Err1 - no retract) */
-	FSWR  /* 09 (Err2 - retract) */
+	NOFS,	// (00) No Final State
+	NOFS,	// (01) No Final State
+	FSNR,	// (02) Comments
+	NOFS,	// (03) No Final State
+	FSNR,	// (04) String Literal
+	NOFS,	// (05) No Final State
+	FSWR,	// (06) Integer Literal
+	NOFS,	// (07) No Final State
+	NOFS,	// (08) No Final State
+	NOFS,	// (09) No Final State
+	FSWR,	// (10) Float Literal
+	NOFS,	// (11) No Final State
+	FSWR,	// (12) ID - Variables & Keywords
+	FSWR,	// (13) MID - Methods
+	FSNR,	// (14) Err1 - No Retract
+	FSWR	// (15) Err2 - With Retract
 };
 
 /* Static (local) function  prototypes */
@@ -251,18 +267,24 @@ Token funcErr	(mouse_str lexeme);
  * If you do not want to use the typedef, the equvalent declaration is:
  */
 
-/* TO_DO: Define final state table */
+/* Define final state table */
 static PTR_ACCFUN finalStateTable[NUM_STATES] = {
-	NULL,		/* -    [00] */
-	NULL,		/* -    [01] */
-	funcID,		/* MNID	[02] */
-	funcKEY,	/* KEY  [03] */
-	NULL,		/* -    [04] */
-	funcSL,		/* SL   [05] */
-	NULL,		/* -    [06] */
-	funcCMT,	/* COM  [07] */
-	funcErr,	/* ERR1 [06] */
-	funcErr		/* ERR2 [07] */
+	NULL,	// (00) No Final State
+	NULL,	// (01) No Final State
+	funcCMT,	// (02) Comments
+	NULL,	// (03) No Final State
+	funcSL,	// (04) String Literal
+	NULL,	// (05) No Final State
+	funcIL,	// (06) Integer Literal
+	NULL,	// (07) No Final State
+	NULL,	// (08) No Final State
+	NULL,	// (09) No Final State
+	NULL,	// (10) Float Literal		TO_DO
+	NULL,	// (11) No Final State
+	funcID,	// (12) ID - Variables & Keywords
+	funcID,	// (13) MID - Methods
+	funcErr,// (14) Err1 - No Retract
+	funcErr	// (15) Err2 - With Retract
 };
 
 /*

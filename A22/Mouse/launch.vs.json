@@ -8,7 +8,7 @@
       "projectTarget": "Mouse.exe",
       "name": "Mouse.exe",
       "args": [
-        "r",
+        "s",
         "INPUT1_Hello.mse"
       ]
     }

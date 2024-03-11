@@ -42,7 +42,7 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A22
-* Date: 03/05/24
+* Date: 03/11/24
 * Professor: Paulo Sousa
 * Purpose: This file contains all functionalities from Scanner.
 * Function list: startScanner(), nextClass(), nextState(),
@@ -173,7 +173,6 @@ Token tokenizer(mouse_None) {
 			currentToken.code = RPR_T;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
-		case '{':
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
 			currentToken.code = SEOF_T;
@@ -285,7 +284,6 @@ mouse_int nextState(mouse_int state, mouse_char c) {
 * Function name: nextClass()
 * Purpose: return next column in TT
 * Called functions: isalpha(), isdigit()
-*	TO_DO: Add any more as needed
 * Parameters:
 *	c = The char being tested
 * Return value: val (which column of the TT the char is from)
@@ -293,17 +291,13 @@ mouse_int nextState(mouse_int state, mouse_char c) {
 *************************************************************
 */
 mouse_int nextClass(mouse_char c) {
-	/* TO_DO: Use your column configuration */
-/* Adjust the logic to return next column in TT */
-/*    [A-z],[0-9],    _,    &,   \', SEOF,    #, other
-	   L(0), D(1), U(2), M(3), Q(4), E(5), C(6),  O(7) */
 	mouse_int val = -1;
 	switch (c) {
+	case CHRCOL0:
+		val = 0;
+		break;
 	case CHRCOL2:
 		val = 2;
-		break;
-	case CHRCOL3:
-		val = 3;
 		break;
 	case CHRCOL4:
 		val = 4;
@@ -311,17 +305,32 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL5:
 		val = 5;
 		break;
+	case CHRCOL6:
+		val = 6;
+		break;
+	case CHRCOL7:
+		val = 7;
+		break;
+	case CHRCOL8:
+		val = 8;
+		break;
+	case CHRCOL9:
+		val = 9;
+		break;
+	case CHRCOL10:
+		val = 10;
+		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
-		val = 5;
+		val = 12;
 		break;
 	default:
 		if (isalpha(c))
-			val = 0;
+			val = 3;
 		else if (isdigit(c))
 			val = 1;
 		else
-			val = 7;
+			val = 11;
 	}
 	return val;
 }
@@ -573,7 +582,6 @@ Token funcErr(mouse_str lexeme) {
 *************************************************************
 */
 mouse_None printToken(Token t) {
-	/* TO_DO: Adjust / check the logic for your language */
 	extern mouse_str keywordTable[]; /* link to keyword table in */
 	switch (t.code) {
 	case RTE_T:
@@ -588,15 +596,21 @@ mouse_None printToken(Token t) {
 	case ERR_T:
 		printf("ERR_T\t\t%s\n", t.attribute.errLexeme);
 		break;
-	case SEOF_T:
-		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
-		break;
 	case MNID_T:
 		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case INL_T:
+		printf("INL_T\t\tTO_DO\n");
 		break;
 	case STR_T:
 		printf("STR_T\t\t%d\t ", (mouse_int)t.attribute.codeType);
 		printf("%s\n", readerGetContent(stringLiteralTable, (mouse_int)t.attribute.codeType));
+		break;
+	case FLT_T:
+		printf("FLT_T\t\tTO_DO\n");
+		break;
+	case BLN_T:
+		printf("BLN_T\t\tTO_DO\n");
 		break;
 	case LPR_T:
 		printf("LPR_T\n");
@@ -606,6 +620,9 @@ mouse_None printToken(Token t) {
 		break;
 	case KW_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
+		break;
+	case SEOF_T:
+		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
 		break;
 	case CMT_T:
 		printf("CMT_T\n");
