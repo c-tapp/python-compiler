@@ -157,13 +157,18 @@ Token tokenizer(mouse_None) {
 
 		/* Cases for spaces */
 		case ' ':
-		case '\t':
 		case '\f':
 			break;
+
+		/* Cases for format */
 		case '\n':
 			line++;
 			break;
-
+		case '\t':
+			currentToken.code = TAB_T;
+			currentToken.attribute.indentationCurrentPos++;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
 		/* Cases for symbols */
 		case '(':
 			currentToken.code = LPR_T;
@@ -175,6 +180,62 @@ Token tokenizer(mouse_None) {
 			return currentToken;
 		case ':':
 			currentToken.code = COL_T;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		
+		/* Cases for Arithmetic Operators */
+		case '+':
+			currentToken.code = OP_ADD;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '-':
+			currentToken.code = OP_SUB;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '*':
+			currentToken.code = OP_MUL;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '/':
+			currentToken.code = OP_DIV;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '%':
+			currentToken.code = OP_MOD;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '**': // TO_DO this is two charaters
+			currentToken.code = OP_EXP;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		/* Cases for Relational Operators */
+		case '=':
+			currentToken.code = OP_EQ;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '!=': // TO_DO this is two charaters
+			currentToken.code = OP_NE;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '>':
+			currentToken.code = OP_GT;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '<':
+			currentToken.code = OP_LT;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		/* Cases for Logical Operators */
+		case '&&': // TO_DO this is two charaters
+			currentToken.code = OP_AND;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '||': // TO_DO this is two charaters
+			currentToken.code = OP_OR;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '!':
+			currentToken.code = OP_NOT;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		/* Cases for END OF FILE */
@@ -300,11 +361,11 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL0:
 		val = 0;
 		break;
-	case CHRCOL2:
-		val = 2;
+	case CHRCOL1:
+		val = 1;
 		break;
-	case CHRCOL4:
-		val = 4;
+	case CHRCOL3:
+		val = 3;
 		break;
 	case CHRCOL5:
 		val = 5;
@@ -324,17 +385,20 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL10:
 		val = 10;
 		break;
+	case CHRCOL11:
+		val = 11;
+		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
-		val = 12;
+		val = 13;
 		break;
 	default:
 		if (isalpha(c))
-			val = 3;
+			val = 4;
 		else if (isdigit(c))
-			val = 1;
+			val = 2;
 		else
-			val = 11;
+			val = 12;
 	}
 	return val;
 }
@@ -413,11 +477,12 @@ Token funcIL(mouse_str lexeme) {
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm: Checks for either ( or : to determine if it's a 
+*	method or variable respectively, else check if it's a 
+*	keyword
 *************************************************************
 */
 Token funcID(mouse_str lexeme) {
-	/* TO_DO: Adjust the function for ID */
 	Token currentToken = { 0 };
 	size_t length = strlen(lexeme);
 	mouse_char lastch = lexeme[length - 1];
@@ -425,7 +490,15 @@ Token funcID(mouse_str lexeme) {
 	switch (lastch) {
 		case MNID_SUF:
 			readerRetract(sourceBuffer);
+			lexeme[length - 1] = '\0';
 			currentToken.code = MNID_T;
+			scData.scanHistogram[currentToken.code]++;
+			isID = mouse_True;
+			break;
+		case VRID_SUF:
+			readerRetract(sourceBuffer);
+			lexeme[length - 1] = '\0';
+			currentToken.code = VAR_T;
 			scData.scanHistogram[currentToken.code]++;
 			isID = mouse_True;
 			break;
@@ -523,9 +596,23 @@ Token funcKEY(mouse_str lexeme) {
 		if (!strcmp(lexeme, &keywordTable[j][0]))
 			kwindex = j;
 	if (kwindex != -1) {
-		currentToken.code = KW_T;
-		scData.scanHistogram[currentToken.code]++;
-		currentToken.attribute.codeType = kwindex;
+		if (kwindex == 4) { // True
+			currentToken.code = BLN_T;
+			scData.scanHistogram[currentToken.code]++;
+			currentToken.attribute.codeType = kwindex;
+			currentToken.attribute.boolValue = 1;
+		}
+		else if (kwindex == 5) { // False
+			currentToken.code = BLN_T;
+			scData.scanHistogram[currentToken.code]++;
+			currentToken.attribute.codeType = kwindex;
+			currentToken.attribute.boolValue = 0;
+		}
+		else { // Other Keywords
+			currentToken.code = KW_T;
+			scData.scanHistogram[currentToken.code]++;
+			currentToken.attribute.codeType = kwindex;
+		}
 	}
 	else {
 		currentToken = funcErr(lexeme);
@@ -588,15 +675,6 @@ Token funcErr(mouse_str lexeme) {
 mouse_None printToken(Token t) {
 	extern mouse_str keywordTable[]; /* link to keyword table in */
 	switch (t.code) {
-	case RTE_T:
-		printf("RTE_T\t\t%s", t.attribute.errLexeme);
-		/* Call here run-time error handling component */
-		if (errorNumber) {
-			printf("%d", errorNumber);
-			exit(errorNumber);
-		}
-		printf("\n");
-		break;
 	case ERR_T:
 		printf("ERR_T\t\t%s\n", t.attribute.errLexeme);
 		break;
@@ -614,7 +692,7 @@ mouse_None printToken(Token t) {
 		printf("FLT_T\t\tTO_DO\n");
 		break;
 	case BLN_T:
-		printf("BLN_T\t\tTO_DO\n");
+		printf("BLN_T\t\t%d\n", t.attribute.boolValue);
 		break;
 	case LPR_T:
 		printf("LPR_T\n");
@@ -622,8 +700,26 @@ mouse_None printToken(Token t) {
 	case RPR_T:
 		printf("RPR_T\n");
 		break;
+	case COL_T:
+		printf("COL_T\n");
+		break;
 	case KW_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
+		break;
+	case VAR_T:
+		printf("VAR_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case TAB_T:
+		printf("TAB_T\t\t%d\t\n", t.attribute.indentationCurrentPos);
+		break;
+	case RTE_T:
+		printf("RTE_T\t\t%s", t.attribute.errLexeme);
+		/* Call here run-time error handling component */
+		if (errorNumber) {
+			printf("%d", errorNumber);
+			exit(errorNumber);
+		}
+		printf("\n");
 		break;
 	case SEOF_T:
 		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
@@ -631,6 +727,45 @@ mouse_None printToken(Token t) {
 	case CMT_T:
 		printf("CMT_T\n");
 		break;
+	/*case OP_ADD:				TO_DO
+		printf("OP_ADD\n");
+		break;
+	case OP_SUB:
+		printf("OP_SUB\n");
+		break;
+	case OP_MUL:
+		printf("OP_MUL\n");
+		break;
+	case OP_DIV:
+		printf("OP_DIV\n");
+		break;
+	case OP_MOD:
+		printf("OP_MOD\n");
+		break;
+	case OP_EXP:
+		printf("OP_EXP\n");
+		break;
+	case OP_EQ:
+		printf("OP_EQ\n");
+		break;
+	case OP_NE:
+		printf("OP_NE\n");
+		break;
+	case OP_GT:
+		printf("OP_GT\n");
+		break;
+	case OP_LT:
+		printf("OP_LT\n");
+		break;
+	case OP_AND:
+		printf("OP_AND\n");
+		break;
+	case OP_OR:
+		printf("OP_OR\n");
+		break;
+	case OP_NOT:
+		printf("OP_NOT\n");
+		break;*/
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
 	}

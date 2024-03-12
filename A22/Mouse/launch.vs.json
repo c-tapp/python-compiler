@@ -9,7 +9,7 @@
       "name": "Mouse.exe",
       "args": [
         "s",
-        "INPUT1_Hello.mse"
+        "Test.mse"
       ]
     }
   ]
