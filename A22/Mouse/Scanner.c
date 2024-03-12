@@ -151,8 +151,6 @@ Token tokenizer(mouse_None) {
 			Every token is possessed by its own dedicated code
 			-----------------------------------------------------------------------
 		*/
-
-		/* TO_DO: All patterns that do not require accepting functions */
 		switch (c) {
 
 		/* Cases for spaces */
@@ -164,7 +162,7 @@ Token tokenizer(mouse_None) {
 		case '\n':
 			line++;
 			break;
-		case '\t':
+		case '\t': // TO_DO Tracking tab depth
 			currentToken.code = TAB_T;
 			currentToken.attribute.indentationCurrentPos++;
 			scData.scanHistogram[currentToken.code]++;
@@ -204,7 +202,7 @@ Token tokenizer(mouse_None) {
 			currentToken.code = OP_MOD;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
-		case '**': // TO_DO this is two charaters
+		case '^': 
 			currentToken.code = OP_EXP;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
@@ -236,6 +234,10 @@ Token tokenizer(mouse_None) {
 			return currentToken;
 		case '!':
 			currentToken.code = OP_NOT;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case '==': // TO_DO this is two charaters
+			currentToken.code = OP_IS;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		/* Cases for END OF FILE */
@@ -727,7 +729,7 @@ mouse_None printToken(Token t) {
 	case CMT_T:
 		printf("CMT_T\n");
 		break;
-	/*case OP_ADD:				TO_DO
+	case OP_ADD:			
 		printf("OP_ADD\n");
 		break;
 	case OP_SUB:
@@ -765,7 +767,10 @@ mouse_None printToken(Token t) {
 		break;
 	case OP_NOT:
 		printf("OP_NOT\n");
-		break;*/
+		break;
+	case OP_IS:
+		printf("OP_IS\n");
+		break;
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
 	}

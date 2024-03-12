@@ -78,7 +78,7 @@ _______________________________________________________
 #define RTE_CODE 1  /* Value for run-time error */
 
 /* Define the number of tokens */
-#define NUM_TOKENS 15
+#define NUM_TOKENS 29
 
 /* Define Token codes - Create your token classes */
 enum TOKENS {
@@ -118,11 +118,11 @@ static mouse_str tokenStrTable[NUM_TOKENS] = {
 	"CMT_T"			/* 14: Comment token */
 };
 
-/* Operators token attributes */
-typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_EXP} AriOperator;
-typedef enum RelationalOperators { OP_EQ, OP_NE, OP_GT, OP_LT } RelOperator;
-typedef enum LogicalOperators { OP_AND, OP_OR, OP_NOT } LogOperator;
-typedef enum SourceEndOfFile { SEOF_0, SEOF_255 } EofOperator;
+/* Operators token attributes - Had to include = # to differentiate from tokenStrTable in printToken()*/
+typedef enum ArithmeticOperators { OP_ADD = 15, OP_SUB = 16, OP_MUL = 17, OP_DIV = 18, OP_MOD = 19, OP_EXP = 20} AriOperator;
+typedef enum RelationalOperators { OP_EQ = 21, OP_NE = 22, OP_GT = 23, OP_LT = 24} RelOperator;
+typedef enum LogicalOperators { OP_AND = 25, OP_OR = 26, OP_NOT = 27, OP_IS = 28} LogOperator;
+typedef enum SourceEndOfFile { SEOF_0, SEOF_255} EofOperator;
 
 /* Data structures for declaring the token and its attributes */
 typedef union TokenAttribute {

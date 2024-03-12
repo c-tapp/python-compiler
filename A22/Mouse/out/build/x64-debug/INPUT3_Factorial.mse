@@ -4,6 +4,6 @@ num: int = int(input("Enter a number: "))
 factorial: int = 1
 
 for (i = 0, i < num, i++)
-	factorial = factorial*i
+	factorial = factorial * i
 
 print("The factorial of " + num + " is " + factorial)

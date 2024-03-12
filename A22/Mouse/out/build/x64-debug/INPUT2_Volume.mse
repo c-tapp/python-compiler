@@ -4,7 +4,7 @@
 def volume():
 	pi: float = 3.1415926535897931
 	radian: float = float(input("Radius of sphere: "))
-	volume: float = (4/3) * (pi * radian ** 3)
+	volume: float = (4/3) * (pi * radian ^ 3)
 	return volume
 
 # Running volume (main)
