@@ -47,7 +47,7 @@ _______________________________________________________
 * Purpose: This file contains all functionalities from Scanner.
 * Function list: startScanner(), nextClass(), nextState(),
 *	printScannerData(), tokenizer(), funcSL(), funcIL(),
-*	funcID(), funcCMT(), funcKEY(), funcErr(), TO_DO Add more if needed
+*	funcID(), funcCMT(), funcKEY(), funcErr()
 ************************************************************
 */
 
@@ -123,7 +123,6 @@ mouse_int startScanner(BufferPointer psc_buf) {
 * Called functions: readerGetChar(), nextState(), readerGetPosRead(), 
 *	readerSetMark(), readerRetract(), readerCreate(), fprintf(),
 *	exit(), readerRestore(), readerAddChar(), readerGetContent(),
-*	TO_DO: Add any more as needed
 * Return value: currentToken (The token being worked on with updated parameters)
 * Algorithm: detects a specific sequence and recognises any patterns then calls 
 *	the appropriate function
@@ -139,9 +138,7 @@ Token tokenizer(mouse_None) {
 
 	mouse_int lexLength;		/* token length */
 	mouse_int i;				/* counter */
-	/*
 	mouse_char newc;			// new char
-	*/
 
 	while (1) { /* endless loop broken by token returns it will generate a warning */
 		c = readerGetChar(sourceBuffer);
@@ -162,11 +159,16 @@ Token tokenizer(mouse_None) {
 		case '\n':
 			line++;
 			break;
-		case '\t': // TO_DO Tracking tab depth
+		case '\t': 
+			do {
+				currentToken.attribute.indentationCurrentPos++;
+				newc = readerGetChar(sourceBuffer);
+			} while (newc == '\t');
+			readerRetract(sourceBuffer);
 			currentToken.code = TAB_T;
-			currentToken.attribute.indentationCurrentPos++;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
+			break;
 		/* Cases for symbols */
 		case '(':
 			currentToken.code = LPR_T;
@@ -181,65 +183,103 @@ Token tokenizer(mouse_None) {
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		
-		/* Cases for Arithmetic Operators */
+		/* Cases for Operators */
 		case '+':
-			currentToken.code = OP_ADD;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_ADD;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '-':
-			currentToken.code = OP_SUB;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_SUB;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '*':
-			currentToken.code = OP_MUL;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_MUL;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '/':
-			currentToken.code = OP_DIV;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_DIV;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '%':
-			currentToken.code = OP_MOD;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_MOD;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '^': 
-			currentToken.code = OP_EXP;
+			currentToken.code = OP_T;
+			currentToken.attribute.arithmeticOperator = OP_EXP;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
-		/* Cases for Relational Operators */
 		case '=':
-			currentToken.code = OP_EQ;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
-		case '!=': // TO_DO this is two charaters
-			currentToken.code = OP_NE;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
+			currentToken.code = OP_T;
+			newc = readerGetChar(sourceBuffer);
+			if (newc == '=') { // Checks to see if the token is ==
+				currentToken.attribute.logicalOperator = OP_IS;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
+			else { // It isn't ==, reader retracts and sends OP_EQ
+				readerRetract(sourceBuffer);
+				currentToken.attribute.relationalOperator = OP_EQ;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
 		case '>':
-			currentToken.code = OP_GT;
+			currentToken.code = OP_T;
+			currentToken.attribute.relationalOperator = OP_GT;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		case '<':
-			currentToken.code = OP_LT;
+			currentToken.code = OP_T;
+			currentToken.attribute.relationalOperator = OP_LT;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
-		/* Cases for Logical Operators */
-		case '&&': // TO_DO this is two charaters
-			currentToken.code = OP_AND;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
-		case '||': // TO_DO this is two charaters
-			currentToken.code = OP_OR;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
+		case '&': 
+			currentToken.code = OP_T;
+			newc = readerGetChar(sourceBuffer);
+			if (newc == '&') { // Checks to see if the token is &&
+				currentToken.attribute.logicalOperator = OP_AND;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
+			else { // It isn't &&, reader retracts and sends ERR_T
+				readerRetract(sourceBuffer);
+				currentToken.code = ERR_T;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
+		case '|': 
+			currentToken.code = OP_T;
+			newc = readerGetChar(sourceBuffer);
+			if (newc == '|') { // Checks to see if the token is ||
+				currentToken.attribute.logicalOperator = OP_OR;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
+			else { // It isn't ||, reader retracts and sends ERR_T
+				readerRetract(sourceBuffer);
+				currentToken.code = ERR_T;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
 		case '!':
-			currentToken.code = OP_NOT;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
-		case '==': // TO_DO this is two charaters
-			currentToken.code = OP_IS;
-			scData.scanHistogram[currentToken.code]++;
-			return currentToken;
+			currentToken.code = OP_T;
+			newc = readerGetChar(sourceBuffer);
+			if (newc == '=') { // Checks to see if the token is !=
+				currentToken.attribute.relationalOperator = OP_NE;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
+			else { // It isn't ||, reader retracts and sends OP_NOT
+				readerRetract(sourceBuffer);
+				currentToken.attribute.logicalOperator = OP_NOT;
+				scData.scanHistogram[currentToken.code]++;
+				return currentToken;
+			}
 		/* Cases for END OF FILE */
 		case CHARSEOF0:
 			currentToken.code = SEOF_T;
@@ -257,8 +297,6 @@ Token tokenizer(mouse_None) {
 			Note: Part 2 must follow Part 1 to catch the illegal symbols
 			-----------------------------------------------------------------------
 		*/
-
-		/* TO_DO: Adjust / check the logic for your language */
 
 		default: // general case
 			state = nextState(state, c);
@@ -363,11 +401,11 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL0:
 		val = 0;
 		break;
-	case CHRCOL1:
-		val = 1;
+	case CHRCOL2:
+		val = 2;
 		break;
-	case CHRCOL3:
-		val = 3;
+	case CHRCOL4:
+		val = 4;
 		break;
 	case CHRCOL5:
 		val = 5;
@@ -387,20 +425,17 @@ mouse_int nextClass(mouse_char c) {
 	case CHRCOL10:
 		val = 10;
 		break;
-	case CHRCOL11:
-		val = 11;
-		break;
 	case CHARSEOF0:
 	case CHARSEOF255:
-		val = 13;
+		val = 12;
 		break;
 	default:
 		if (isalpha(c))
-			val = 4;
+			val = 3;
 		else if (isdigit(c))
-			val = 2;
+			val = 1;
 		else
-			val = 12;
+			val = 11;
 	}
 	return val;
 }
@@ -494,13 +529,6 @@ Token funcID(mouse_str lexeme) {
 			readerRetract(sourceBuffer);
 			lexeme[length - 1] = '\0';
 			currentToken.code = MNID_T;
-			scData.scanHistogram[currentToken.code]++;
-			isID = mouse_True;
-			break;
-		case VRID_SUF:
-			readerRetract(sourceBuffer);
-			lexeme[length - 1] = '\0';
-			currentToken.code = VAR_T;
 			scData.scanHistogram[currentToken.code]++;
 			isID = mouse_True;
 			break;
@@ -616,8 +644,10 @@ Token funcKEY(mouse_str lexeme) {
 			currentToken.attribute.codeType = kwindex;
 		}
 	}
-	else {
-		currentToken = funcErr(lexeme);
+	else { // Isnt a keyword thus is potentially a new variable (TO_DO Must be check for correct syntax in parser)
+		currentToken.code = VAR_T;
+		scData.scanHistogram[currentToken.code]++;
+		currentToken.attribute.codeType = kwindex;
 	}
 	return currentToken;
 }
@@ -729,52 +759,66 @@ mouse_None printToken(Token t) {
 	case CMT_T:
 		printf("CMT_T\n");
 		break;
-	case OP_ADD:			
-		printf("OP_ADD\n");
-		break;
-	case OP_SUB:
-		printf("OP_SUB\n");
-		break;
-	case OP_MUL:
-		printf("OP_MUL\n");
-		break;
-	case OP_DIV:
-		printf("OP_DIV\n");
-		break;
-	case OP_MOD:
-		printf("OP_MOD\n");
-		break;
-	case OP_EXP:
-		printf("OP_EXP\n");
-		break;
-	case OP_EQ:
-		printf("OP_EQ\n");
-		break;
-	case OP_NE:
-		printf("OP_NE\n");
-		break;
-	case OP_GT:
-		printf("OP_GT\n");
-		break;
-	case OP_LT:
-		printf("OP_LT\n");
-		break;
-	case OP_AND:
-		printf("OP_AND\n");
-		break;
-	case OP_OR:
-		printf("OP_OR\n");
-		break;
-	case OP_NOT:
-		printf("OP_NOT\n");
-		break;
-	case OP_IS:
-		printf("OP_IS\n");
+	case OP_T:
+		/* Checking Arithmetic Operators */
+		switch (t.attribute.arithmeticOperator) {
+		case OP_ADD:
+			printf("OP_ADD\n");
+			break;
+		case OP_SUB:
+			printf("OP_SUB\n");
+			break;
+		case OP_MUL:
+			printf("OP_MUL\n");
+			break;
+		case OP_DIV:
+			printf("OP_DIV\n");
+			break;
+		case OP_MOD:
+			printf("OP_MOD\n");
+			break;
+		case OP_EXP:
+			printf("OP_EXP\n");
+			break;
+		default:
+			/* Checking Relational Operators */
+			switch (t.attribute.relationalOperator) {
+			case OP_EQ:
+				printf("OP_EQ\n");
+				break;
+			case OP_NE:
+				printf("OP_NE\n");
+				break;
+			case OP_GT:
+				printf("OP_GT\n");
+				break;
+			case OP_LT:
+				printf("OP_LT\n");
+				break;
+			default:
+				/* Checking Logical Operators */
+				switch (t.attribute.logicalOperator) {
+				case OP_AND:
+					printf("OP_AND\n");
+					break;
+				case OP_OR:
+					printf("OP_OR\n");
+					break;
+				case OP_NOT:
+					printf("OP_NOT\n");
+					break;
+				case OP_IS:
+					printf("OP_IS\n");
+					break;
+				
+				} // Logical check end
+			} // Relational check end
+		}// Arithmetic check end
 		break;
 	default:
 		printf("Scanner error: invalid token code: %d\n", t.code);
-	}
-}
+	} // Code check end
+} // Function end
 
 /*
 ***********************************************************

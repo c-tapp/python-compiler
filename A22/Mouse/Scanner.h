@@ -47,7 +47,7 @@ _______________________________________________________
 * Purpose: This file is the main header for Scanner (.h)
 * Function list: startScanner(), nextClass(), nextState(),
 *	printScannerData(), tokenizer(), funcSL(), funcIL(),
-*	funcID(), funcCMT(), funcKEY(), funcErr(), TO_DO Add more if needed
+*	funcID(), funcCMT(), funcKEY(), funcErr()
 ************************************************************
 */
 
@@ -78,7 +78,7 @@ _______________________________________________________
 #define RTE_CODE 1  /* Value for run-time error */
 
 /* Define the number of tokens */
-#define NUM_TOKENS 29
+#define NUM_TOKENS 16
 
 /* Define Token codes - Create your token classes */
 enum TOKENS {
@@ -96,7 +96,8 @@ enum TOKENS {
 	TAB_T,		/* 11: Tabulation token */
 	RTE_T,		/* 12: Run-time error token */
 	SEOF_T,		/* 13: Source end-of-file token */
-	CMT_T		/* 14: Comment token */
+	CMT_T,		/* 14: Comment token */
+	OP_T		/* 15: Operator token */
 };
 
 /* Define the list of keywords */
@@ -115,13 +116,14 @@ static mouse_str tokenStrTable[NUM_TOKENS] = {
 	"TAB_T",		/* 11: Tabulation token */
 	"RTE_T",		/* 12: Run-time error token */
 	"SEOF_T",		/* 13: Source end-of-file token */
-	"CMT_T"			/* 14: Comment token */
+	"CMT_T",		/* 14: Comment token */
+	"OP_T"			/* 15: Operator token */
 };
 
-/* Operators token attributes - Had to include = # to differentiate from tokenStrTable in printToken()*/
-typedef enum ArithmeticOperators { OP_ADD = 15, OP_SUB = 16, OP_MUL = 17, OP_DIV = 18, OP_MOD = 19, OP_EXP = 20} AriOperator;
-typedef enum RelationalOperators { OP_EQ = 21, OP_NE = 22, OP_GT = 23, OP_LT = 24} RelOperator;
-typedef enum LogicalOperators { OP_AND = 25, OP_OR = 26, OP_NOT = 27, OP_IS = 28} LogOperator;
+/* Operators token attributes - Added values to differentiate in printToken()*/
+typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_EXP} AriOperator;
+typedef enum RelationalOperators { OP_EQ=6, OP_NE=7, OP_GT=8, OP_LT=9} RelOperator;
+typedef enum LogicalOperators { OP_AND=10, OP_OR=11, OP_NOT=12, OP_IS=13} LogOperator;
 typedef enum SourceEndOfFile { SEOF_0, SEOF_255} EofOperator;
 
 /* Data structures for declaring the token and its attributes */
@@ -176,19 +178,17 @@ typedef struct scannerData {
 /* Define lexeme FIXED classes */
 /* These constants will be used on nextClass */
 #define CHRCOL0  '('
-#define CHRCOL1  ':'
-#define CHRCOL3  '#'
-#define CHRCOL5  '\n'
-#define CHRCOL6  '+'
-#define CHRCOL7  '-'
-#define CHRCOL8  '.'
-#define CHRCOL9  ','
-#define CHRCOL10 '\"'
-#define CHRCOL11 '_'
+#define CHRCOL2  '#'
+#define CHRCOL4  '\n'
+#define CHRCOL5  '+'
+#define CHRCOL6  '-'
+#define CHRCOL7  '.'
+#define CHRCOL8  ','
+#define CHRCOL9 '\"'
+#define CHRCOL10 '_'
 
 /* These constants will be used on VID / MID function */
 #define MNID_SUF '('
-#define VRID_SUF ':'
 #define COMM_SYM '#'
 
 /* Error states and illegal state */
@@ -198,29 +198,28 @@ typedef struct scannerData {
 
  /* State transition table definition */
 #define NUM_STATES		17
-#define CHAR_CLASSES	14
+#define CHAR_CLASSES	13
 
 /* Transition table - type of states defined in separate table */
 static mouse_int transitionTable[NUM_STATES][CHAR_CLASSES] = {
-/*      (  ,  :  ,[0-9],  #  ,[A-Z], \n  ,  +  ,  -  , (.) , (,) ,  "  ,  _  ,other, EOF
-	  B1(0), C(1), D(2), H(3), L(4), N(5),O1(6),O2(7),P1(8),P2(9),Q(10),U(11),Z(12), (13)*/
-	{  ESNR, ESNR,    5,    1,   11, ESNR,    7,    7, ESNR, ESNR,    3, ESNR, ESNR, ESWR},	  // S0:  NOFS
-	{     1,    1,    1,    1,    1,    2,    1,    1,    1,    1,    1,    1,    1, ESWR},	  // S1:  NOFS
-	{	 FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	  // S2:  FSNR (COM)
-	{     3,    3,   3,    3,    3,    3,    3,    3,    3,    3,    4,    3,    3,    3},	  // S3:  NOFS 
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	  // S4:  FSNR (SL)
-	{     6,    6,    5,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6},	  // S5:  NOFS 
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	  // S6:  FSWR (IL)
-	{  ESNR, ESNR,    5, ESNR, ESNR, ESNR, ESNR, ESNR,    8, ESNR, ESNR, ESNR, ESNR, ESNR},	  // S7:  NOFS
-	{  ESNR, ESNR,    9, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR},	  // S8:  NOFS
-	{    10,   10,    9,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10},   // S9:  NOFS
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S10: FSWR (FL)
-	{    14,   13,   11,   12,   11,   12,   12,   12,   12,   12,   12,   11,   12,   12},   // S11: NOFS
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S12: FSWR (Key)
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S13: FSWR (ID)
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S14: FSNR (MID) - No Retract due to retract implimented in FuncID
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S15: FSNR (ER1)
-	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}    // S16: FSWR (ER2)
+/*      (  , [0-9],  #  ,[A-Z], \n  ,  +  ,  -  , (.) , (,) ,  "  ,  _  ,other, EOF
+	  B1(0), D(1), H(2), L(3), N(4),O1(5),O2(6),P1(7),P2(8), Q(9),U(10),Z(11), (12)*/
+	{  ESNR,    5,    1,   11, ESNR,    7,    7, ESNR, ESNR,    3, ESNR, ESNR, ESWR},	// S0:  NOFS
+	{     1,    1,    1,    1,    2,    1,    1,    1,    1,    1,    1,    1, ESWR},	// S1:  NOFS
+	{	 FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S2:  FSNR (COM)
+	{     3,   3,    3,    3,    3,    3,    3,    3,    3,    4,    3,    3,    3},	// S3:  NOFS 
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S4:  FSNR (SL)
+	{     6,    5,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6},	// S5:  NOFS 
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S6:  FSWR (IL)
+	{  ESNR,    5, ESNR, ESNR, ESNR, ESNR, ESNR,    8, ESNR, ESNR, ESNR, ESNR, ESNR},	// S7:  NOFS
+	{  ESNR,    9, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR},	// S8:  NOFS
+	{    10,    9,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10,   10},   // S9:  NOFS
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S10: FSWR (FL)
+	{    13,   11,   12,   11,   12,   12,   12,   12,   12,   12,   11,   12,   12},   // S11: NOFS
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S12: FSWR (Key / ID)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S13: FSNR (MID) - No Retract due to retract implimented in FuncID
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},   // S14: FSNR (ER1)
+	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}    // S15: FSWR (ER2)
 };
 
 /* Define accepting states types */
@@ -242,11 +241,10 @@ static mouse_int stateType[NUM_STATES] = {
 	NOFS,	// (09) No Final State
 	FSWR,	// (10) Float Literal
 	NOFS,	// (11) No Final State
-	FSWR,	// (12) Keywords
-	FSNR,   // (12) ID - Variables
-	FSNR,	// (14) MID - Methods - No Retract due to retract implimented in FuncID
-	FSNR,	// (15) Err1 - No Retract
-	FSWR	// (16) Err2 - With Retract
+	FSWR,	// (12) Keywords / ID
+	FSNR,	// (13) MID - Methods - No Retract due to retract implimented in FuncID
+	FSNR,	// (14) Err1 - No Retract
+	FSWR	// (15) Err2 - With Retract
 };
 
 /* Static (local) function  prototypes */
@@ -293,10 +291,9 @@ static PTR_ACCFUN finalStateTable[NUM_STATES] = {
 	NULL,	// (10) Float Literal		TO_DO
 	NULL,	// (11) No Final State
 	funcID,	// (12) Keywords
-	funcID, // (13) ID - Variables
-	funcID,	// (14) MID - Methods
-	funcErr,// (15) Err1 - No Retract
-	funcErr	// (16) Err2 - With Retract
+	funcID,	// (13) MID - Methods
+	funcErr,// (14) Err1 - No Retract
+	funcErr	// (15) Err2 - With Retract
 };
 
 /*
