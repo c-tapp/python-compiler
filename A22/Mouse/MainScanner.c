@@ -3,7 +3,7 @@
 * COMPILERS COURSE - Algonquin College
 * Code version: Winter, 2024
 * Author: Colin Tapp 040774946 / Henry Forget 041023812
-* Professors: Paulo Sousa
+* Professors: Anurag Das
 ************************************************************
 _______________________________________________________
 |                     .@@@@=                          |
@@ -42,8 +42,8 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A22 
-* Date: 03/05/24
-* Professor: Paulo Sousa
+* Date: 03/16/24
+* Professor: Anurag Das
 * Purpose: This file is the main code for Scanner (A22)
 * Function list: mainScanner(), printScannerError(),
 *	displayScanner(), getScannerFilesize()

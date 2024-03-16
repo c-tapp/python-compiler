@@ -2,11 +2,11 @@
 
 # Procedure to show menu
 def print_menu():
-    print("--- MENU DEMO ---")
-    print("| 1. Option 1   |")
-    print("| 2. Option 2   |")
-    print("| 3. Option 3   |")
-    print("-----------------")
+	print("--- MENU DEMO ---")
+	print("| 1. Option 1   |")
+	print("| 2. Option 2   |")
+	print("| 3. Option 3   |")
+	print("-----------------")
 
 # Procedure to repeat menu
 def runMenu():

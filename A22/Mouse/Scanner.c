@@ -3,7 +3,7 @@
 * COMPILERS COURSE - Algonquin College
 * Code version: Winter, 2024
 * Author: Colin Tapp 040774946 / Henry Forget 041023812
-* Professors: Paulo Sousa
+* Professors: Anurag Das
 ************************************************************
 _______________________________________________________
 |                     .@@@@=                          |
@@ -42,8 +42,8 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A22
-* Date: 03/11/24
-* Professor: Paulo Sousa
+* Date: 03/16/24
+* Professor: Anurag Das
 * Purpose: This file contains all functionalities from Scanner.
 * Function list: startScanner(), nextClass(), nextState(),
 *	printScannerData(), tokenizer(), funcSL(), funcIL(),
@@ -180,6 +180,10 @@ Token tokenizer(mouse_None) {
 			return currentToken;
 		case ':':
 			currentToken.code = COL_T;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
+		case ',':
+			currentToken.code = COM_T;
 			scData.scanHistogram[currentToken.code]++;
 			return currentToken;
 		
@@ -468,17 +472,18 @@ Token funcCMT(mouse_str lexeme) {
 
 /*
 ***********************************************************
-* Function name: funcIL
-* Purpose: Responsible to identify integer literals
-* Called functions: strlen(), atol()
+* Function name: funcNL
+* Purpose: Responsible to identify numerical literals
+* Called functions: strlen(), atol(), strstr()
 * Parameters:
 *   lexeme = The current lexeme being worked on
 * Return value: currentToken (The token with it's updated data)
-* Algorithm: TO_DO
+* Algorithm: Validates the bounds of the number then checks 
+*	if it has a period, if it doesn't then its an int, if it
+*	does its a float
 *************************************************************
 */
-Token funcIL(mouse_str lexeme) {
-	/* TO_DO: Adjust the function for IL */
+Token funcNL(mouse_str lexeme) {
 	Token currentToken = { 0 };
 	mouse_long tlong;
 	if (lexeme[0] != '\0' && strlen(lexeme) > NUM_LEN) {
@@ -487,9 +492,16 @@ Token funcIL(mouse_str lexeme) {
 	else {
 		tlong = atol(lexeme);
 		if (tlong >= 0 && tlong <= SHRT_MAX) {
-			currentToken.code = INL_T;
-			scData.scanHistogram[currentToken.code]++;
-			currentToken.attribute.intValue = (mouse_int)tlong;
+			if (strstr(lexeme, ".") != NULL) {
+				currentToken.code = FLT_T;
+				scData.scanHistogram[currentToken.code]++;
+				currentToken.attribute.floatValue = (mouse_float)atof(lexeme);
+			}
+			else {
+				currentToken.code = INL_T;
+				scData.scanHistogram[currentToken.code]++;
+				currentToken.attribute.intValue = (mouse_int)tlong;
+			}		
 		}
 		else {
 			currentToken = (*finalStateTable[ESNR])(lexeme);
@@ -696,7 +708,6 @@ Token funcErr(mouse_str lexeme) {
 * Function name: printToken
 * Purpose: prints the token returned by the scanner
 * Called functions: printf(), exit(), readerGetContent()
-*	TO_DO: Add any more as needed
 * Parameters:
 *   t = Token in question
 * Return value: Prints the token and its info
@@ -714,14 +725,14 @@ mouse_None printToken(Token t) {
 		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
 		break;
 	case INL_T:
-		printf("INL_T\t\tTO_DO\n");
+		printf("INL_T\t\t%d\n", t.attribute.intValue);
 		break;
 	case STR_T:
 		printf("STR_T\t\t%d\t ", (mouse_int)t.attribute.codeType);
 		printf("%s\n", readerGetContent(stringLiteralTable, (mouse_int)t.attribute.codeType));
 		break;
 	case FLT_T:
-		printf("FLT_T\t\tTO_DO\n");
+		printf("FLT_T\t\t%f\n", t.attribute.floatValue);
 		break;
 	case BLN_T:
 		printf("BLN_T\t\t%d\n", t.attribute.boolValue);
@@ -735,11 +746,14 @@ mouse_None printToken(Token t) {
 	case COL_T:
 		printf("COL_T\n");
 		break;
+	case COM_T:
+		printf("COM_T\n");
+		break;
 	case KW_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
 		break;
 	case VAR_T:
-		printf("VAR_T\t\t%s\n", t.attribute.idLexeme);
+		printf("VAR_T\t\t\n");
 		break;
 	case TAB_T:
 		printf("TAB_T\t\t%d\t\n", t.attribute.indentationCurrentPos);

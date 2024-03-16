@@ -3,7 +3,7 @@
 * COMPILERS COURSE - Algonquin College
 * Code version: Winter, 2024
 * Author: Colin Tapp 040774946 / Henry Forget 041023812
-* Professors: Paulo Sousa
+* Professors: Anurag Das
 ************************************************************
 _______________________________________________________
 |                     .@@@@=                          |
@@ -42,8 +42,8 @@ _______________________________________________________
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: 011
 * Assignment: A22
-* Date: 03/11/24
-* Professor: Paulo Sousa
+* Date: 03/16/24
+* Professor: Anurag Das
 * Purpose: This file is the main header for Scanner (.h)
 * Function list: startScanner(), nextClass(), nextState(),
 *	printScannerData(), tokenizer(), funcSL(), funcIL(),
@@ -73,12 +73,12 @@ _______________________________________________________
 /* Constants */
 #define VID_LEN 20  /* variable identifier length */
 #define ERR_LEN 40  /* error message length */
-#define NUM_LEN 5   /* maximum number of digits for IL */
+#define NUM_LEN 50   /* maximum number of digits for IL */
 
 #define RTE_CODE 1  /* Value for run-time error */
 
 /* Define the number of tokens */
-#define NUM_TOKENS 16
+#define NUM_TOKENS 17
 
 /* Define Token codes - Create your token classes */
 enum TOKENS {
@@ -91,13 +91,14 @@ enum TOKENS {
 	LPR_T,		/*  6: Left parenthesis token */
 	RPR_T,		/*  7: Right parenthesis token */
 	COL_T,		/*  8: Colon token */
-	KW_T,		/*	9: Keyword token */
-	VAR_T,		/* 10: Variable token */
-	TAB_T,		/* 11: Tabulation token */
-	RTE_T,		/* 12: Run-time error token */
-	SEOF_T,		/* 13: Source end-of-file token */
-	CMT_T,		/* 14: Comment token */
-	OP_T		/* 15: Operator token */
+	COM_T,		/*  9: Comma token */
+	KW_T,		/* 10: Keyword token */
+	VAR_T,		/* 11: Variable token */
+	TAB_T,		/* 12: Tabulation token */
+	RTE_T,		/* 13: Run-time error token */
+	SEOF_T,		/* 14: Source end-of-file token */
+	CMT_T,		/* 15: Comment token */
+	OP_T		/* 16: Operator token */
 };
 
 /* Define the list of keywords */
@@ -111,13 +112,14 @@ static mouse_str tokenStrTable[NUM_TOKENS] = {
 	"LPR_T",		/*  6: Left parenthesis token */
 	"RPR_T",		/*  7: Right parenthesis token */
 	"COL_T",		/*  8: Colon token */
-	"KW_T",			/*	9: Keyword token */
-	"VAR_T",		/* 10: Variable token */
-	"TAB_T",		/* 11: Tabulation token */
-	"RTE_T",		/* 12: Run-time error token */
-	"SEOF_T",		/* 13: Source end-of-file token */
-	"CMT_T",		/* 14: Comment token */
-	"OP_T"			/* 15: Operator token */
+	"COM_T",		/*  9: Comma token */
+	"KW_T",			/* 10: Keyword token */
+	"VAR_T",		/* 11: Variable token */
+	"TAB_T",		/* 12: Tabulation token */
+	"RTE_T",		/* 13: Run-time error token */
+	"SEOF_T",		/* 14: Source end-of-file token */
+	"CMT_T",		/* 15: Comment token */
+	"OP_T"			/* 16: Operator token */
 };
 
 /* Operators token attributes - Added values to differentiate in printToken()*/
@@ -192,9 +194,9 @@ typedef struct scannerData {
 #define COMM_SYM '#'
 
 /* Error states and illegal state */
-#define ESNR	8		/* Error state with no retract */
-#define ESWR	9		/* Error state with retract */
-#define FS		10		/* Illegal state */
+#define ESNR	14		/* Error state with no retract */
+#define ESWR	15		/* Error state with retract */
+#define FS		16		/* Illegal state */
 
  /* State transition table definition */
 #define NUM_STATES		17
@@ -209,7 +211,7 @@ static mouse_int transitionTable[NUM_STATES][CHAR_CLASSES] = {
 	{	 FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S2:  FSNR (COM)
 	{     3,   3,    3,    3,    3,    3,    3,    3,    3,    4,    3,    3,    3},	// S3:  NOFS 
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S4:  FSNR (SL)
-	{     6,    5,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6,    6},	// S5:  NOFS 
+	{     6,    5,    6,    6,    6,    6,    6,    8,    6,    6,    6,    6,    6},	// S5:  NOFS 
 	{    FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS},	// S6:  FSWR (IL)
 	{  ESNR,    5, ESNR, ESNR, ESNR, ESNR, ESNR,    8, ESNR, ESNR, ESNR, ESNR, ESNR},	// S7:  NOFS
 	{  ESNR,    9, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR, ESNR},	// S8:  NOFS
@@ -265,7 +267,7 @@ typedef Token(*PTR_ACCFUN)(mouse_str lexeme);
 
 /* Declare accepting states functions */
 Token funcSL	(mouse_str lexeme);
-Token funcIL	(mouse_str lexeme);
+Token funcNL	(mouse_str lexeme);
 Token funcID	(mouse_str lexeme);
 Token funcCMT   (mouse_str lexeme);
 Token funcKEY	(mouse_str lexeme);
@@ -284,11 +286,11 @@ static PTR_ACCFUN finalStateTable[NUM_STATES] = {
 	NULL,	// (03) No Final State
 	funcSL,	// (04) String Literal
 	NULL,	// (05) No Final State
-	funcIL,	// (06) Integer Literal
+	funcNL,	// (06) Integer Literal
 	NULL,	// (07) No Final State
 	NULL,	// (08) No Final State
 	NULL,	// (09) No Final State
-	NULL,	// (10) Float Literal		TO_DO
+	funcNL,	// (10) Float Literal
 	NULL,	// (11) No Final State
 	funcID,	// (12) Keywords
 	funcID,	// (13) MID - Methods
