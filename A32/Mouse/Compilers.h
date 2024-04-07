@@ -103,8 +103,9 @@ Main functions signatures
 ------------------------------------------------------------
 */
 mouse_int mainReader(mouse_int argc, mouse_str* argv);
-
 mouse_int mainScanner(mouse_int argc, mouse_str* argv);
+mouse_int mainParser(mouse_int argc, mouse_str* argv);
+
 /* 
 TO_DO: Include later mainParser (A32)
 */
