@@ -82,24 +82,31 @@ extern Token			tokenizer(mouse_None);
 extern mouse_str		keywordTable[KWT_SIZE];
 static mouse_int		syntaxErrorNumber = 0;
 
-#define LANG_WRTE		"print&"
-#define LANG_READ		"input&"
-#define LANG_MAIN		"main&"
+#define LANG_WRTE		"print"
+#define LANG_READ		"input"
 
-/* TO_DO: Create ALL constants for keywords (sequence given in table.h) */
 /* Constants */
 enum KEYWORDS {
-	NO_ATTR = -1,
-	KW_data,
-	KW_code,
-	KW_int,
-	KW_real,
-	KW_string,
-	KW_if,
-	KW_then,
-	KW_else,
-	KW_while,
-	KW_do
+	NO_ATTR = -1, 	/* NO_ATTR = epsilon = -1 */
+	KW_int,			/* 00 */
+	KW_float,		/* 01 */
+	KW_str,			/* 02 */
+	KW_bool,		/* 03 */
+	KW_True,		/* 04 */
+	KW_False,		/* 05 */
+	KW_None,		/* 06 */
+	KW_if,			/* 07 */
+	KW_elif,		/* 08 */
+	KW_else			/* 09 */
+	KW_while,		/* 10 */
+	KW_for,			/* 11 */
+	KW_def,			/* 12 */
+	KW_return,		/* 13 */
+	KW_break,		/* 14 */
+	KW_continue,	/* 15 */
+	KW_pass,		/* 16 */
+	KW_and,			/* 17 */
+	KW_or,			/* 18 */
 };
 
 /* TO_DO: Define the number of BNF rules */
@@ -125,35 +132,86 @@ mouse_None printBNFData(ParserData psData);
 
 /* List of BNF statements */
 enum BNF_RULES {
-	BNF_error,										/*  0: Error token */
-	BNF_codeSession,								/*  1 */
-	BNF_comment,									/*  2 */
-	BNF_dataSession,								/*  3 */
-	BNF_optVarListDeclarations,						/*  4 */
-	BNF_optionalStatements,							/*  5 */
-	BNF_outputStatement,							/*  6 */
-	BNF_outputVariableList,							/*  7 */
-	BNF_program,									/*  8 */
-	BNF_statement,									/*  9 */
-	BNF_statements,									/* 10 */
-	BNF_statementsPrime								/* 11 */
+	BNF_error,										/* 00: Error token */
+	BNF_program, 									/* 01 */
+	BNF_functionDefinitions, 						/* 02 */
+	BNF_functionDefinition, 						/* 03 */
+	BNF_mainBlock, 									/* 04 */
+	BNF_funcName, 									/* 05 */
+	BNF_comments, 									/* 06 */
+	BNF_statements, 								/* 07 */
+	BNF_statement, 									/* 08 */
+	BNF_variableDeclaration, 						/* 09 */
+	BNF_typeAnnotation, 							/* 10 */
+	BNF_variableInitialization, 					/* 11 */
+	BNF_assignmentStatement, 						/* 12 */
+	BNF_inputStatement, 							/* 13 */
+	BNF_outputStatement, 							/* 14 */
+	BNF_variableList, 								/* 15 */
+	BNF_expression, 								/* 16 */
+	BNF_arithmeticExpression, 						/* 17 */
+	BNF_additiveArithmeticExpression, 				/* 18 */
+	BNF_multiplicativeArithmeticExpression, 		/* 19 */
+	BNF_exponentialArithmeticExpression, 			/* 20 */
+	BNF_primaryExpression, 							/* 21 */
+	BNF_stringExpression, 							/* 22 */
+	BNF_conditionalExpression, 						/* 23 */
+	BNF_logicalExpression, 							/* 24 */
+	BNF_logicalOrExpression, 						/* 25 */
+	BNF_logicalAndExpression, 						/* 26 */
+	BNF_logicalNotExpression, 						/* 27 */
+	BNF_relationalExpression, 						/* 28 */
+	BNF_relationalOperator, 						/* 29 */
+	BNF_selectionStatement, 						/* 30 */
+	BNF_optionalElifStatement, 						/* 31 */
+	BNF_elifStatement, 								/* 32 */
+	BNF_optionalElseStatement, 						/* 33 */
+	BNF_iterationStatement, 						/* 34 */
+	BNF_functionCallStatement, 						/* 35 */
+	BNF_expressionList	 							/* 36 */
 };
 
 
-/* TO_DO: Define the list of keywords */
 static mouse_str BNFStrTable[NUM_BNF_RULES] = {
 	"BNF_error",
-	"BNF_codeSession",
-	"BNF_comment",
-	"BNF_dataSession",
-	"BNF_optVarListDeclarations",
-	"BNF_optionalStatements",
-	"BNF_outputStatement",
-	"BNF_outputVariableList",
-	"BNF_program",
-	"BNF_statement",
-	"BNF_statements",
-	"BNF_statementsPrime"
+	"BNF_error",									/* 00: Error token */
+	"BNF_program", 									/* 01 */
+	"BNF_functionDefinitions", 						/* 02 */
+	"BNF_functionDefinition", 						/* 03 */
+	"BNF_mainBlock", 								/* 04 */
+	"BNF_funcName", 								/* 05 */
+	"BNF_comments", 								/* 06 */
+	"BNF_statements", 								/* 07 */
+	"BNF_statement", 								/* 08 */
+	"BNF_variableDeclaration", 						/* 09 */
+	"BNF_typeAnnotation", 							/* 10 */
+	"BNF_variableInitialization", 					/* 11 */
+	"BNF_assignmentStatement", 						/* 12 */
+	"BNF_inputStatement", 							/* 13 */
+	"BNF_outputStatement", 							/* 14 */
+	"BNF_variableList", 							/* 15 */
+	"BNF_expression", 								/* 16 */
+	"BNF_arithmeticExpression", 					/* 17 */
+	"BNF_additiveArithmeticExpression", 			/* 18 */
+	"BNF_multiplicativeArithmeticExpression", 		/* 19 */
+	"BNF_exponentialArithmeticExpression", 			/* 20 */
+	"BNF_primaryExpression", 						/* 21 */
+	"BNF_stringExpression", 						/* 22 */
+	"BNF_conditionalExpression", 					/* 23 */
+	"BNF_logicalExpression", 						/* 24 */
+	"BNF_logicalOrExpression", 						/* 25 */
+	"BNF_logicalAndExpression", 					/* 26 */
+	"BNF_logicalNotExpression", 					/* 27 */
+	"BNF_relationalExpression", 					/* 28 */
+	"BNF_relationalOperator", 						/* 29 */
+	"BNF_selectionStatement", 						/* 30 */
+	"BNF_optionalElifStatement", 					/* 31 */
+	"BNF_elifStatement", 							/* 32 */
+	"BNF_optionalElseStatement", 					/* 33 */
+	"BNF_iterationStatement", 						/* 34 */
+	"BNF_functionCallStatement", 					/* 35 */
+	"BNF_expressionList"	 						/* 36 */
+
 };
 
 /* TO_DO: Place ALL non-terminal function declarations */
