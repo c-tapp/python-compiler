@@ -206,42 +206,11 @@ mouse_None printError() {
  *************************************************************
  */
 mouse_None program() {
-	/* Update program statistics */
-	psData.parsHistogram[BNF_program]++;
-	
-	/* Program code */
-	while(lookahead.code != SEOF_T) {
-		switch(lookahead.code) {
-		case KW_T:
-			// Check if keyword == 'def'
-			if (lookahead.attribute.codeType == 12) {
-				functionDefinition();
-			}
-			break;
-		case CMT_T:
-			comment(); // consume token, skip to next lookahead
-			break;
-		case ERR_T:
-			printError();
-			break;
-		default:
-			mainBlock(); // mainBlock will need to parse until SEOF_T or ERR_T then return.
-			break;
-		}
-	}
-	
-	/* Match End of File token */
-	matchToken(SEOF_T, NO_ATTR);
-	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
-	
-}
-/*
-mouse_None program() {
 	// BNF: <program> -> main& { <opt_statements> }
 	// FIRST(<program>)= {CMT_T, MNID_T (main&), SEOF_T}. 
-		// Update program statistics 
+	/* Update program statistics */
 	psData.parsHistogram[BNF_program]++;
-		// Program code 
+	/* Program code */
 	switch (lookahead.code) {
 	case CMT_T:
 		comment();
@@ -265,7 +234,7 @@ mouse_None program() {
 	}
 	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
 }
-*/
+
  /*
  ***********************************************************
  * Function name: comment()
@@ -288,7 +257,7 @@ mouse_None comment() {
  * BNF: <dataSession> -> data { <opt_varlist_declarations> }
  * FIRST(<program>)= {KW_T (KW_data)}.
  ***********************************************************
-
+ */
 mouse_None dataSession() {
 	psData.parsHistogram[BNF_dataSession]++;
 	switch (lookahead.code) {
@@ -303,15 +272,13 @@ mouse_None dataSession() {
 	}
 }
 
-*/
-
 /*
  ************************************************************
  * Optional Var List Declarations
  * BNF: <opt_varlist_declarations> -> <varlist_declarations> | e
  * FIRST(<opt_varlist_declarations>) = { e, KW_T (KW_int), KW_T (KW_real), KW_T (KW_string)}.
  ***********************************************************
-
+ */
 mouse_None optVarListDeclarations() {
 	psData.parsHistogram[BNF_optVarListDeclarations]++;
 	switch (lookahead.code) {
@@ -320,7 +287,6 @@ mouse_None optVarListDeclarations() {
 	}
 	printf("%s%s\n", STR_LANGNAME, ": Optional Variable List Declarations parsed");
 }
- */
 
 /*
  ************************************************************
@@ -328,7 +294,7 @@ mouse_None optVarListDeclarations() {
  * BNF: <codeSession> -> code { <opt_statements> }
  * FIRST(<codeSession>)= {KW_T (KW_code)}.
  ***********************************************************
-
+ */
 mouse_None codeSession() {
 	psData.parsHistogram[BNF_codeSession]++;
 	switch (lookahead.code) {
@@ -342,7 +308,6 @@ mouse_None codeSession() {
 		printf("%s%s\n", STR_LANGNAME, ": Code Session parsed");
 	}
 }
- */
 
 /* TO_DO: Continue the development (all non-terminal functions) */
 
@@ -353,7 +318,7 @@ mouse_None codeSession() {
  * FIRST(<opt_statements>) = { ϵ , IVID_T, FVID_T, SVID_T, KW_T(KW_if),
  *				KW_T(KW_while), MNID_T(print&), MNID_T(input&) }
  ***********************************************************
-
+ */
 mouse_None optionalStatements() {
 	psData.parsHistogram[BNF_optionalStatements]++;
 	switch (lookahead.code) {
@@ -370,7 +335,6 @@ mouse_None optionalStatements() {
 	}
 	printf("%s%s\n", STR_LANGNAME, ": Optional statements parsed");
 }
- */
 
 /*
  ************************************************************
@@ -394,7 +358,7 @@ mouse_None statements() {
  * FIRST(<statementsPrime>) = { ϵ , IVID_T, FVID_T, SVID_T, 
  *		KW_T(KW_if), KW_T(KW_while), MNID_T(input&), MNID_T(print&) }
  ***********************************************************
-
+ */
 mouse_None statementsPrime() {
 	psData.parsHistogram[BNF_statementsPrime]++;
 	switch (lookahead.code) {
@@ -407,7 +371,6 @@ mouse_None statementsPrime() {
 		; //empty string
 	}
 }
- */
 
 /*
  ************************************************************
