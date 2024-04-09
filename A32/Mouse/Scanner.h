@@ -98,7 +98,8 @@ enum TOKENS {
 	RTE_T,		/* 13: Run-time error token */
 	SEOF_T,		/* 14: Source end-of-file token */
 	CMT_T,		/* 15: Comment token */
-	OP_T		/* 16: Operator token */
+	OP_T,		/* 16: Operator token */
+	EOL_T		/* 17: End of Line token (\n) */
 };
 
 /* Define the list of keywords */

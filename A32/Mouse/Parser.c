@@ -196,7 +196,7 @@ mouse_None printError() {
 }
 
 
- /*
+/*
  ***********************************************************
  * Function name: program()
  * Purpose: TO_DO
@@ -204,7 +204,7 @@ mouse_None printError() {
  *	dataSession(), codeSession(), printError(), printf()
  * Algorithm: TO_DO how does this work?
  *************************************************************
- */
+*/
 mouse_None program() {
 	/* Update program statistics */
 	psData.parsHistogram[BNF_program]++;
@@ -234,6 +234,29 @@ mouse_None program() {
 	matchToken(SEOF_T, NO_ATTR);
 	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
 	
+}
+
+/*
+ ***********************************************************
+ * Function name: program()
+ * Purpose: TO_DO
+ * Called functions: comment(), strncmp(), matchToken(),
+ *	dataSession(), codeSession(), printError(), printf()
+ * Algorithm: TO_DO how does this work?
+ *************************************************************
+ */
+mouse_None functionDefinition() {
+	psData.parsHistogram[BNF_functionDefinition]++
+	matchToken(MNID_T, NO_ATTR); 
+		// Optional Parameters
+	matchToken(RPR_T, NO_ATTR);
+	matchToken(COL_T, NO_ATTR);
+	matchToken(EOL_T, NO_ATTR);
+	matchToken(TAB_T, NO_ATTR);
+	
+	// All functionDefinition components matched
+	statements();
+		
 }
 /*
 mouse_None program() {
@@ -277,7 +300,7 @@ mouse_None program() {
  *************************************************************
  */
 mouse_None comment() {
-	psData.parsHistogram[BNF_comment]++;
+	psData.parsHistogram[BNF_comments]++;
 	matchToken(CMT_T, NO_ATTR);
 	printf("%s%s\n", STR_LANGNAME, ": Comment parsed");
 }
