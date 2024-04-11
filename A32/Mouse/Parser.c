@@ -201,7 +201,7 @@ mouse_None printError() {
 		printf("TAB_T\t\t%d\t\n", t.attribute.indentationCurrentPos);
 		break;
 	case RTE_T:
-		printf("RTE_T\t\t\n", t.attribute.errLexeme);
+		printf("RTE_T\t\t%s\n", t.attribute.errLexeme);
 		break;
 	case SEOF_T:
 		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
@@ -315,7 +315,9 @@ mouse_None program() {
 		case KW_T:
 			// Check if keyword == 'def'
 			if (lookahead.attribute.codeType == 12) {
+				psData.parsHistogram[BNF_functionDefinitions]++;	
 				functionDefinition();
+				printf("%s%s\n", STR_LANGNAME, ": Function Definitions parsed");
 			}
 			break;
 		case ERR_T:
@@ -359,7 +361,7 @@ mouse_None mainBlock(){
 mouse_None statements() {
 	psData.parsHistogram[BNF_statements]++;
 
-	while (lookahead.code == TAB_T || lookahead.code == MNID_T || lookahead.code == VAR_T){ // TO_DO Change this to SEOF_T?
+	while (lookahead.attribute.codeType != 13 && lookahead.code != SEOF_T){
 		statement();
 	}
 	printf("%s%s\n", STR_LANGNAME, ": Statements parsed");
@@ -381,12 +383,71 @@ mouse_None statement() {
 	else {
 		psData.parsHistogram[BNF_statement]++;
 		switch (lookahead.code) {
-		/*case KW_T:
+		case KW_T:
 			switch (lookahead.attribute.codeType) {
+			case 11: // for loop
+				matchToken(KW_T, 11);
+				matchToken(LPR_T, NO_ATTR);
+				matchToken(VAR_T, NO_ATTR);
+
+				psData.parsHistogram[BNF_variableInitialization]++;
+				psData.parsHistogram[BNF_assignmentStatement]++;
+				if (lookahead.attribute.relationalOperator == OP_EQ && lookahead.code == OP_T) {
+					psData.parsHistogram[BNF_relationalOperator]++;
+					matchToken(OP_T, NO_ATTR);
+					printf("%s%s\n", STR_LANGNAME, ": Relational Operator parsed");
+					psData.parsHistogram[BNF_relationalExpression]++;
+					psData.parsHistogram[BNF_assignmentStatement]++;
+					printf("%s%s\n", STR_LANGNAME, ": Assignment Statement parsed");
+					printf("%s%s\n", STR_LANGNAME, ": Relational Expression parsed");
+					printf("%s%s\n", STR_LANGNAME, ": Variable Initialization parsed");
+				}
+				if (lookahead.code == INL_T) {
+					matchToken(INL_T, NO_ATTR);
+					psData.parsHistogram[BNF_variableDeclaration]++;
+					printf("%s%s\n", STR_LANGNAME, ": Variable Declaration parsed");
+				}else if (lookahead.code == VAR_T) {
+					matchToken(VAR_T, NO_ATTR);
+					psData.parsHistogram[BNF_variableDeclaration]++;
+					printf("%s%s\n", STR_LANGNAME, ": Variable Declaration parsed");
+				}
+				printf("%s%s\n", STR_LANGNAME, ": Assignment Statement parsed");
+
+				matchToken(COM_T, NO_ATTR);
+				matchToken(VAR_T, NO_ATTR);
+
+				if (lookahead.attribute.relationalOperator == OP_EQ || lookahead.attribute.relationalOperator == OP_GT || lookahead.attribute.relationalOperator == OP_LT && lookahead.code == OP_T) {
+					psData.parsHistogram[BNF_relationalOperator]++;
+					matchToken(OP_T, NO_ATTR);
+					printf("%s%s\n", STR_LANGNAME, ": Relational Operator parsed");
+				}
+				if (lookahead.code == INL_T) {
+					matchToken(INL_T, NO_ATTR);
+				}
+				else if (lookahead.code == VAR_T) {
+					matchToken(VAR_T, NO_ATTR);
+				}
+
+				matchToken(COM_T, NO_ATTR);
+				matchToken(VAR_T, NO_ATTR);
+
+				if (lookahead.attribute.arithmeticOperator == OP_ADD && lookahead.code == OP_T) {
+					matchToken(OP_T, NO_ATTR);
+					matchToken(OP_T, NO_ATTR);
+				}
+				else if (lookahead.attribute.arithmeticOperator == OP_SUB && lookahead.code == OP_T) {
+					matchToken(OP_T, NO_ATTR);
+					matchToken(OP_T, NO_ATTR);
+				}
+
+				matchToken(RPR_T, NO_ATTR);
+				matchToken(TAB_T, NO_ATTR);
+				expression();		
+				break;
 			default:
 				printError();
 			}
-			break;*/
+			break;
 
 		case MNID_T:
 			if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
@@ -395,29 +456,33 @@ mouse_None statement() {
 			break;
 		case VAR_T:
 			matchToken(VAR_T, NO_ATTR);
-			matchToken(COL_T, NO_ATTR);
-
-			if (lookahead.code == KW_T) {
-				if (lookahead.attribute.codeType == 0 || lookahead.attribute.codeType == 1 || lookahead.attribute.codeType == 2 || lookahead.attribute.codeType == 3) {
-					matchToken(KW_T, lookahead.attribute.codeType);
-					psData.parsHistogram[BNF_typeAnnotation]++;
-					printf("%s%s\n", STR_LANGNAME, ": Type Annotation parsed");
-				}
-				else {
-					printError();
+			if (lookahead.code == COL_T) {
+				psData.parsHistogram[BNF_variableInitialization]++;
+				matchToken(COL_T, NO_ATTR);
+				printf("%s%s\n", STR_LANGNAME, ": Variable Initialization parsed");
+				if (lookahead.code == KW_T) {
+					if (lookahead.attribute.codeType == 0 || lookahead.attribute.codeType == 1 || lookahead.attribute.codeType == 2 || lookahead.attribute.codeType == 3) {
+						psData.parsHistogram[BNF_typeAnnotation]++;
+						psData.parsHistogram[BNF_variableDeclaration]++;
+						matchToken(KW_T, lookahead.attribute.codeType);
+						printf("%s%s\n", STR_LANGNAME, ": Type Annotation parsed");
+						printf("%s%s\n", STR_LANGNAME, ": Variable Declaration parsed");
+					}
+					else {
+						printError();
+					}
 				}
 			}
-			psData.parsHistogram[BNF_variableDeclaration]++;
-			printf("%s%s\n", STR_LANGNAME, ": Variable Declaration parsed");
 
 			if (lookahead.attribute.relationalOperator == OP_EQ) {
-				// Declaration + Assignment
-				expression();
 				psData.parsHistogram[BNF_assignmentStatement]++;
+				// Assignment
+				expression();		
 				printf("%s%s\n", STR_LANGNAME, ": Assignment Statement parsed");
 			}
-			psData.parsHistogram[BNF_variableInitialization]++;
-			printf("%s%s\n", STR_LANGNAME, ": Variable Initialization parsed");
+			break;
+		case CMT_T:
+			comment(); // consume token, skip to next lookahead
 			break;
 		default:
 			printError();
@@ -437,15 +502,19 @@ mouse_None statement() {
 mouse_None functionDefinition() {
 	psData.parsHistogram[BNF_functionDefinition]++;
 	matchToken(KW_T, 12);
+	psData.parsHistogram[BNF_funcName]++;
 	matchToken(MNID_T, NO_ATTR);
+	printf("%s%s\n", STR_LANGNAME, ": Function Name parsed");
 	matchToken(LPR_T, NO_ATTR);
 	// Optional Parameters
 	matchToken(RPR_T, NO_ATTR);
 	matchToken(COL_T, NO_ATTR);
 	matchToken(TAB_T, NO_ATTR);
-
 	// All functionDefinition components matched
 	statements();
+	// Keword return termination
+	matchToken(KW_T, 13);
+	matchToken(VAR_T, NO_ATTR);
 
 	printf("%s%s\n", STR_LANGNAME, ": Function Definition parsed");
 }
@@ -464,22 +533,153 @@ mouse_None expression(){
 	switch (lookahead.code) {
 	case OP_T:
 		if (lookahead.attribute.relationalOperator == OP_EQ) {
-			matchToken(OP_T, NO_ATTR);
-
-			expression();
-
 			psData.parsHistogram[BNF_relationalOperator]++;
+			matchToken(OP_T, NO_ATTR);
 			printf("%s%s\n", STR_LANGNAME, ": Relational Operator parsed");
+			// Conducting the other side of the equation
+			psData.parsHistogram[BNF_relationalExpression]++;
+			expression();
+			printf("%s%s\n", STR_LANGNAME, ": Relational Expression parsed");
 		}
 		break;
-	case FLT_T:
-		matchToken(FLT_T, NO_ATTR);
-
+	case INL_T:
 		psData.parsHistogram[BNF_primaryExpression]++;
+		matchToken(INL_T, NO_ATTR);
+		if (lookahead.code == OP_T) {
+			psData.parsHistogram[BNF_arithmeticExpression]++;
+			if (lookahead.attribute.arithmeticOperator == OP_ADD || lookahead.attribute.arithmeticOperator == OP_SUB && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_additiveArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Additive Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_MUL || lookahead.attribute.arithmeticOperator == OP_DIV || lookahead.attribute.arithmeticOperator == OP_MOD && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_multiplicativeArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Multiplicative Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_EXP && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_exponentialArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Exponential Arithmetic parsed");
+			}
+			printf("%s%s\n", STR_LANGNAME, ": Arithmetic parsed");
+		}
+		printf("%s%s\n", STR_LANGNAME, ": Primary Expression parsed");
+		break;
+	case FLT_T:
+		psData.parsHistogram[BNF_primaryExpression]++;
+		matchToken(FLT_T, NO_ATTR);
+		if (lookahead.code == OP_T) {
+			psData.parsHistogram[BNF_arithmeticExpression]++;
+			if (lookahead.attribute.arithmeticOperator == OP_ADD || lookahead.attribute.arithmeticOperator == OP_SUB && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_additiveArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Additive Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_MUL || lookahead.attribute.arithmeticOperator == OP_DIV || lookahead.attribute.arithmeticOperator == OP_MOD && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_multiplicativeArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Multiplicative Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_EXP && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_exponentialArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Exponential Arithmetic parsed");
+			}
+			printf("%s%s\n", STR_LANGNAME, ": Arithmetic parsed");
+		}
+		printf("%s%s\n", STR_LANGNAME, ": Primary Expression parsed");
+		break;
+	case VAR_T:
+		psData.parsHistogram[BNF_variableExpression]++;
+		psData.parsHistogram[BNF_primaryExpression]++;
+		matchToken(VAR_T, NO_ATTR);
+		if (lookahead.code == OP_T) {
+			psData.parsHistogram[BNF_arithmeticExpression]++;
+			if (lookahead.attribute.arithmeticOperator == OP_ADD || lookahead.attribute.arithmeticOperator == OP_SUB && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_additiveArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Additive Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_MUL || lookahead.attribute.arithmeticOperator == OP_DIV || lookahead.attribute.arithmeticOperator == OP_MOD && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_multiplicativeArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Multiplicative Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_EXP && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_exponentialArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Exponential Arithmetic parsed");
+			}
+			else if (lookahead.attribute.relationalOperator == OP_EQ && lookahead.code == OP_T) {
+				psData.parsHistogram[BNF_relationalOperator]++;
+				matchToken(OP_T, NO_ATTR);
+				printf("%s%s\n", STR_LANGNAME, ": Relational Operator parsed");
+				// Conducting the other side of the equation
+				psData.parsHistogram[BNF_relationalExpression]++;
+				psData.parsHistogram[BNF_assignmentStatement]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Assignment Statement parsed");
+				printf("%s%s\n", STR_LANGNAME, ": Relational Expression parsed");
+			}
+			printf("%s%s\n", STR_LANGNAME, ": Arithmetic parsed");
+		}
+		printf("%s%s\n", STR_LANGNAME, ": Variable Expression parsed");
+		printf("%s%s\n", STR_LANGNAME, ": Primary Expression parsed");
+		break;
+	case LPR_T:
+		matchToken(LPR_T, NO_ATTR);
+		expression();
+		matchToken(RPR_T, NO_ATTR);
+		if (lookahead.code == OP_T) {
+			psData.parsHistogram[BNF_arithmeticExpression]++;
+			if (lookahead.attribute.arithmeticOperator == OP_ADD || lookahead.attribute.arithmeticOperator == OP_SUB && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_additiveArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Additive Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_MUL || lookahead.attribute.arithmeticOperator == OP_DIV || lookahead.attribute.arithmeticOperator == OP_MOD && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_multiplicativeArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Multiplicative Arithmetic parsed");
+			}
+			else if (lookahead.attribute.arithmeticOperator == OP_EXP && lookahead.code == OP_T) {
+				matchToken(OP_T, NO_ATTR);
+				psData.parsHistogram[BNF_exponentialArithmeticExpression]++;
+				expression();
+				printf("%s%s\n", STR_LANGNAME, ": Exponential Arithmetic parsed");
+			}
+			printf("%s%s\n", STR_LANGNAME, ": Arithmetic parsed");
+		}
 		printf("%s%s\n", STR_LANGNAME, ": Primary Expression parsed");
 		break;
 	case MNID_T:
-		// TO_DO FUNCTIONCALL() || FUNCTIONCALL(EXPRESSION) If next token isnt ) recursively call expression()
+		psData.parsHistogram[BNF_functionCallStatement]++;
+		psData.parsHistogram[BNF_funcName]++;
+		matchToken(MNID_T, NO_ATTR); 
+		printf("%s%s\n", STR_LANGNAME, ": Function Name parsed"); 
+		matchToken(LPR_T, NO_ATTR);
+		if (lookahead.code == MNID_T || lookahead.code == STR_T) {
+			expression();
+		}
+		matchToken(RPR_T, NO_ATTR);
+		printf("%s%s\n", STR_LANGNAME, ": Function Call Statement parsed"); 
+		break;
+	case STR_T:
+		psData.parsHistogram[BNF_stringExpression]++;
+		matchToken(STR_T, NO_ATTR);
+		printf("%s%s\n", STR_LANGNAME, ": String Expression parsed");
 		break;
 	default:
 		printError();
@@ -497,11 +697,16 @@ mouse_None expression(){
  */
 mouse_None outputStatement() {
 	psData.parsHistogram[BNF_outputStatement]++;
+	psData.parsHistogram[BNF_functionCallStatement]++;
+	psData.parsHistogram[BNF_funcName]++;
 	matchToken(MNID_T, NO_ATTR);
+	printf("%s%s\n", STR_LANGNAME, ": Function Name parsed");
 	matchToken(LPR_T, NO_ATTR);
+	psData.parsHistogram[BNF_expressionList]++;
 	outputVariableList();
+	printf("%s%s\n", STR_LANGNAME, ": Expression List parsed");
 	matchToken(RPR_T, NO_ATTR);
-	//matchToken(EOS_T, NO_ATTR); //  EOS_T is sofia's end of statement character (;); I commented it out but kept it incase it was needed for future reference
+	printf("%s%s\n", STR_LANGNAME, ": Function Call Statement parsed");
 	printf("%s%s\n", STR_LANGNAME, ": Output statement parsed");
 }
 
@@ -510,19 +715,30 @@ mouse_None outputStatement() {
  * Function name: outputVariableList
  * Purpose: Verifys the patterns of print's input variables
  * Called functions: matchToken()
- * Algorithm: Nested switch and if statements
+ * Algorithm: Nested switch and while statements
  ***********************************************************
  */
 mouse_None outputVariableList() {
-	psData.parsHistogram[BNF_outputVariableList]++;
+	psData.parsHistogram[BNF_outputVariable]++;
 	switch (lookahead.code) {
 	case STR_T:
 		matchToken(STR_T, NO_ATTR);
+		while (lookahead.attribute.arithmeticOperator == OP_ADD && lookahead.code == OP_T){
+			matchToken(OP_T, NO_ATTR);
+			outputVariableList();
+		}
+		break;
+	case VAR_T:
+		matchToken(VAR_T, NO_ATTR);
+		while (lookahead.attribute.arithmeticOperator == OP_ADD && lookahead.code == OP_T) {
+			matchToken(OP_T, NO_ATTR);
+			outputVariableList();
+		}
 		break;
 	default:
 		break;
 	}
-	printf("%s%s\n", STR_LANGNAME, ": Output variable list parsed");
+	printf("%s%s\n", STR_LANGNAME, ": Output variable parsed");
 }
 
  /*
