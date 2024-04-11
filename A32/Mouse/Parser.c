@@ -47,11 +47,10 @@ _______________________________________________________
 * Purpose: This file contains all functionalities from Parser.
 * Function list:
 *	startParser(), matchToken(), syncErrorHandler(),
-*	printError(), printBNFData(), codeSession(),
-*	comment(), dataSession(), optVarListDeclarations(),
-*	optionalStatements(), outputStatement() outputVariableList(),
-*	program(), statement(), statements(), statementsPrime(),
-*	TO_DO: Add more if needed
+*	printError(), printBNFData(), program(),
+*	mainBlock(), functionDefinition(), comment(),
+*	expression(),
+*	TO_DO: Add more as implimented
 ************************************************************
 */
 
@@ -76,7 +75,6 @@ extern ParserData psData; /* BNF statistics */
 *************************************************************
 */
 mouse_None startParser() {
-	/* TO_DO: This is the function to start the parser - check your program definition */
 	mouse_int i = 0;
 	for (i = 0; i < NUM_BNF_RULES; i++) {
 		psData.parsHistogram[i] = 0;
@@ -103,7 +101,6 @@ mouse_None startParser() {
  *************************************************************
  */
 mouse_None matchToken(mouse_int tokenCode, mouse_int tokenAttribute) {
-	/* TO_DO: This is the main code for match - check your definition */
 	mouse_int matchFlag = 1;
 	switch (lookahead.code) {
 	case KW_T:
@@ -138,7 +135,6 @@ mouse_None matchToken(mouse_int tokenCode, mouse_int tokenAttribute) {
 *************************************************************
 */
 mouse_None syncErrorHandler(mouse_int syncTokenCode) {
-	/* TO_DO: This is the function to handler error - adjust basically datatypes */
 	printError();
 	syntaxErrorNumber++;
 	while (lookahead.code != syncTokenCode) {
@@ -159,26 +155,29 @@ mouse_None syncErrorHandler(mouse_int syncTokenCode) {
 *************************************************************
 */
 mouse_None printError() {
-	/* TO_DO: This is the function to error printing - adjust basically datatypes */
 	extern numParserErrors;			/* link to number of errors (defined in Parser.h) */
 	Token t = lookahead;
 	printf("%s%s%3d\n", STR_LANGNAME, ": Syntax error:  Line:", line);
 	printf("*****  Token code:%3d Attribute: ", t.code);
 	switch (t.code) {
 	case ERR_T:
-		printf("*ERROR*: %s\n", t.attribute.errLexeme);
-		break;
-	case SEOF_T:
-		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
+		printf("ERR_T\t\t%s\n", t.attribute.errLexeme);
 		break;
 	case MNID_T:
-		printf("MNID_T:\t\t%s\t\n", t.attribute.idLexeme);
+		printf("MNID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case INL_T:
+		printf("INL_T\t\t%d\n", t.attribute.intValue);
 		break;
 	case STR_T:
-		printf("STR_T: %s\n", readerGetContent(stringLiteralTable, t.attribute.contentString));
+		printf("STR_T\t\t%d\t ", (mouse_int)t.attribute.codeType);
+		printf("%s\n", readerGetContent(stringLiteralTable, (mouse_int)t.attribute.codeType));
 		break;
-	case KW_T:
-		printf("KW_T: %s\n", keywordTable[t.attribute.codeType]);
+	case FLT_T:
+		printf("FLT_T\t\t%f\n", t.attribute.floatValue);
+		break;
+	case BLN_T:
+		printf("BLN_T\t\t%d\n", t.attribute.boolValue);
 		break;
 	case LPR_T:
 		printf("LPR_T\n");
@@ -186,315 +185,90 @@ mouse_None printError() {
 	case RPR_T:
 		printf("RPR_T\n");
 		break;
-	//case EOS_T:			//  EOS_T is sofia's end of statement character (;); I commented it out but kept it incase it was needed for future reference
-	//	printf("NA\n");
-	//	break;
+	case COL_T:
+		printf("COL_T\n");
+		break;
+	case COM_T:
+		printf("COM_T\n");
+		break;
+	case KW_T:
+		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
+		break;
+	case VAR_T:
+		printf("VAR_T\t\t\n");
+		break;
+	case TAB_T:
+		printf("TAB_T\t\t%d\t\n", t.attribute.indentationCurrentPos);
+		break;
+	case RTE_T:
+		printf("RTE_T\t\t\n", t.attribute.errLexeme);
+		break;
+	case SEOF_T:
+		printf("SEOF_T\t\t%d\t\n", t.attribute.seofType);
+		break;
+	case CMT_T:
+		printf("CMT_T\n");
+		break;
+	case OP_T:
+		/* Checking Arithmetic Operators */
+		switch (t.attribute.arithmeticOperator) {
+		case OP_ADD:
+			printf("OP_ADD\n");
+			break;
+		case OP_SUB:
+			printf("OP_SUB\n");
+			break;
+		case OP_MUL:
+			printf("OP_MUL\n");
+			break;
+		case OP_DIV:
+			printf("OP_DIV\n");
+			break;
+		case OP_MOD:
+			printf("OP_MOD\n");
+			break;
+		case OP_EXP:
+			printf("OP_EXP\n");
+			break;
+		default:
+			/* Checking Relational Operators */
+			switch (t.attribute.relationalOperator) {
+			case OP_EQ:
+				printf("OP_EQ\n");
+				break;
+			case OP_NE:
+				printf("OP_NE\n");
+				break;
+			case OP_GT:
+				printf("OP_GT\n");
+				break;
+			case OP_LT:
+				printf("OP_LT\n");
+				break;
+			default:
+				/* Checking Logical Operators */
+				switch (t.attribute.logicalOperator) {
+				case OP_AND:
+					printf("OP_AND\n");
+					break;
+				case OP_OR:
+					printf("OP_OR\n");
+					break;
+				case OP_NOT:
+					printf("OP_NOT\n");
+					break;
+				case OP_IS:
+					printf("OP_IS\n");
+					break;
+
+				} // Logical check end
+			} // Relational check end
+		}// Arithmetic check end
+		break;
 	default:
-		printf("%s%s%d\n", STR_LANGNAME, ": Scanner error: invalid token code: ", t.code);
+		printf("Scanner error: invalid token code: %d\n", t.code);
 		numParserErrors++; // Updated parser error
 	}
-}
-
-
-/*
- ***********************************************************
- * Function name: program()
- * Purpose: TO_DO
- * Called functions: comment(), strncmp(), matchToken(),
- *	dataSession(), codeSession(), printError(), printf()
- * Algorithm: TO_DO how does this work?
- *************************************************************
-*/
-mouse_None program() {
-	/* Update program statistics */
-	psData.parsHistogram[BNF_program]++;
-	
-	/* Program code */
-	while(lookahead.code != SEOF_T) {
-		switch(lookahead.code) {
-		case KW_T:
-			// Check if keyword == 'def'
-			if (lookahead.attribute.codeType == 12) {
-				functionDefinition();
-			}
-			break;
-		case CMT_T:
-			comment(); // consume token, skip to next lookahead
-			break;
-		case ERR_T:
-			printError();
-			break;
-		default:
-			mainBlock(); // mainBlock will need to parse until SEOF_T or ERR_T then return.
-			break;
-		}
-	}
-	
-	/* Match End of File token */
-	matchToken(SEOF_T, NO_ATTR);
-	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
-	
-}
-
-/*
- ***********************************************************
- * Function name: program()
- * Purpose: TO_DO
- * Called functions: comment(), strncmp(), matchToken(),
- *	dataSession(), codeSession(), printError(), printf()
- * Algorithm: TO_DO how does this work?
- *************************************************************
- */
-mouse_None functionDefinition() {
-	psData.parsHistogram[BNF_functionDefinition]++
-	matchToken(MNID_T, NO_ATTR); 
-		// Optional Parameters
-	matchToken(RPR_T, NO_ATTR);
-	matchToken(COL_T, NO_ATTR);
-	matchToken(EOL_T, NO_ATTR);
-	matchToken(TAB_T, NO_ATTR);
-	
-	// All functionDefinition components matched
-	statements();
-		
-}
-/*
-mouse_None program() {
-	// BNF: <program> -> main& { <opt_statements> }
-	// FIRST(<program>)= {CMT_T, MNID_T (main&), SEOF_T}. 
-		// Update program statistics 
-	psData.parsHistogram[BNF_program]++;
-		// Program code 
-	switch (lookahead.code) {
-	case CMT_T:
-		comment();
-	case MNID_T:
-		if (strncmp(lookahead.attribute.idLexeme, LANG_MAIN, 5) == 0) {
-			matchToken(MNID_T, NO_ATTR);
-			matchToken(LPR_T, NO_ATTR);
-			dataSession();
-			codeSession();
-			matchToken(RPR_T, NO_ATTR);
-			break;
-		}
-		else {
-			printError();
-		}
-	case SEOF_T:
-		; // Empty
-		break;
-	default:
-		printError();
-	}
-	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
-}
-*/
- /*
- ***********************************************************
- * Function name: comment()
- * Purpose: Checks for a comment
- * Called functions: matchToken(), printf()
- * Algorithm: 
- *	BNF: comment
- *	FIRST(<comment>)= {CMT_T}.
- *************************************************************
- */
-mouse_None comment() {
-	psData.parsHistogram[BNF_comments]++;
-	matchToken(CMT_T, NO_ATTR);
-	printf("%s%s\n", STR_LANGNAME, ": Comment parsed");
-}
-
-/*
- ************************************************************
- * dataSession
- * BNF: <dataSession> -> data { <opt_varlist_declarations> }
- * FIRST(<program>)= {KW_T (KW_data)}.
- ***********************************************************
-
-mouse_None dataSession() {
-	psData.parsHistogram[BNF_dataSession]++;
-	switch (lookahead.code) {
-	case CMT_T:
-		comment();
-	default:
-		matchToken(KW_T, KW_data);
-		matchToken(LPR_T, NO_ATTR);
-		optVarListDeclarations();
-		matchToken(RPR_T, NO_ATTR);
-		printf("%s%s\n", STR_LANGNAME, ": Data Session parsed");
-	}
-}
-
-*/
-
-/*
- ************************************************************
- * Optional Var List Declarations
- * BNF: <opt_varlist_declarations> -> <varlist_declarations> | e
- * FIRST(<opt_varlist_declarations>) = { e, KW_T (KW_int), KW_T (KW_real), KW_T (KW_string)}.
- ***********************************************************
-
-mouse_None optVarListDeclarations() {
-	psData.parsHistogram[BNF_optVarListDeclarations]++;
-	switch (lookahead.code) {
-	default:
-		; // Empty
-	}
-	printf("%s%s\n", STR_LANGNAME, ": Optional Variable List Declarations parsed");
-}
- */
-
-/*
- ************************************************************
- * codeSession statement
- * BNF: <codeSession> -> code { <opt_statements> }
- * FIRST(<codeSession>)= {KW_T (KW_code)}.
- ***********************************************************
-
-mouse_None codeSession() {
-	psData.parsHistogram[BNF_codeSession]++;
-	switch (lookahead.code) {
-	case CMT_T:
-		comment();
-	default:
-		matchToken(KW_T, KW_code);
-		matchToken(LPR_T, NO_ATTR);
-		optionalStatements();
-		matchToken(RPR_T, NO_ATTR);
-		printf("%s%s\n", STR_LANGNAME, ": Code Session parsed");
-	}
-}
- */
-
-/* TO_DO: Continue the development (all non-terminal functions) */
-
-/*
- ************************************************************
- * Optional statement
- * BNF: <opt_statements> -> <statements> | ϵ
- * FIRST(<opt_statements>) = { ϵ , IVID_T, FVID_T, SVID_T, KW_T(KW_if),
- *				KW_T(KW_while), MNID_T(print&), MNID_T(input&) }
- ***********************************************************
-
-mouse_None optionalStatements() {
-	psData.parsHistogram[BNF_optionalStatements]++;
-	switch (lookahead.code) {
-	case CMT_T:
-		comment();
-	case MNID_T:
-		if ((strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) ||
-			(strncmp(lookahead.attribute.idLexeme, LANG_READ, 6) == 0)) {
-			statements();
-			break;
-		}
-	default:
-		; // Empty
-	}
-	printf("%s%s\n", STR_LANGNAME, ": Optional statements parsed");
-}
- */
-
-/*
- ************************************************************
- * Statements
- * BNF: <statements> -> <statement><statementsPrime>
- * FIRST(<statements>) = { IVID_T, FVID_T, SVID_T, KW_T(KW_if),
- *		KW_T(KW_while), MNID_T(input&), MNID_T(print&) }
- ***********************************************************
- */
-mouse_None statements() {
-	psData.parsHistogram[BNF_statements]++;
-	statement();
-	statementsPrime();
-	printf("%s%s\n", STR_LANGNAME, ": Statements parsed");
-}
-
-/*
- ************************************************************
- * Statements Prime
- * BNF: <statementsPrime> -> <statement><statementsPrime> | ϵ
- * FIRST(<statementsPrime>) = { ϵ , IVID_T, FVID_T, SVID_T, 
- *		KW_T(KW_if), KW_T(KW_while), MNID_T(input&), MNID_T(print&) }
- ***********************************************************
-
-mouse_None statementsPrime() {
-	psData.parsHistogram[BNF_statementsPrime]++;
-	switch (lookahead.code) {
-	case MNID_T:
-		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
-			statements();
-			break;
-		}
-	default:
-		; //empty string
-	}
-}
- */
-
-/*
- ************************************************************
- * Single statement
- * BNF: <statement> -> <assignment statement> | <selection statement> |
- *	<iteration statement> | <input statement> | <output statement>
- * FIRST(<statement>) = { IVID_T, FVID_T, SVID_T, KW_T(KW_if), KW_T(KW_while),
- *			MNID_T(input&), MNID_T(print&) }
- ***********************************************************
- */
-mouse_None statement() {
-	psData.parsHistogram[BNF_statement]++;
-	switch (lookahead.code) {
-	case KW_T:
-		switch (lookahead.attribute.codeType) {
-		default:
-			printError();
-		}
-		break;
-	case MNID_T:
-		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
-			outputStatement();
-		}
-		break;
-	default:
-		printError();
-	}
-	printf("%s%s\n", STR_LANGNAME, ": Statement parsed");
-}
-
-/*
- ************************************************************
- * Output Statement
- * BNF: <output statement> -> print& (<output statementPrime>);
- * FIRST(<output statement>) = { MNID_T(print&) }
- ***********************************************************
- */
-mouse_None outputStatement() {
-	psData.parsHistogram[BNF_outputStatement]++;
-	matchToken(MNID_T, NO_ATTR);
-	matchToken(LPR_T, NO_ATTR);
-	outputVariableList();
-	matchToken(RPR_T, NO_ATTR);
-	//matchToken(EOS_T, NO_ATTR); //  EOS_T is sofia's end of statement character (;); I commented it out but kept it incase it was needed for future reference
-	printf("%s%s\n", STR_LANGNAME, ": Output statement parsed");
-}
-
-/*
- ************************************************************
- * Output Variable List
- * BNF: <opt_variable list> -> <variable list> | ϵ
- * FIRST(<opt_variable_list>) = { IVID_T, FVID_T, SVID_T, ϵ }
- ***********************************************************
- */
-mouse_None outputVariableList() {
-	psData.parsHistogram[BNF_outputVariableList]++;
-	switch (lookahead.code) {
-	case STR_T:
-		matchToken(STR_T, NO_ATTR);
-		break;
-	default:
-		;
-	}
-	printf("%s%s\n", STR_LANGNAME, ": Output variable list parsed");
 }
 
 /*
@@ -517,4 +291,250 @@ mouse_None printBNFData(ParserData psData) {
 			printf("%s%s%s%d%s", "Token[", BNFStrTable[cont], "]=", psData.parsHistogram[cont], "\n");
 	}
 	printf("----------------------------------\n");
+}
+
+/*
+ ***********************************************************
+ * Function name: program()
+ * Purpose: Disern between the function definitions and the main code while also accounting for comments
+ * Called functions: comment(), functionDefinition(), printError(), 
+		mainBlock(), matchToken(), printf()
+ * Algorithm: Switch case that checks the next token
+ *************************************************************
+*/
+mouse_None program() {
+	/* Update program statistics */
+	psData.parsHistogram[BNF_program]++;
+	
+	/* Program code */
+	while(lookahead.code != SEOF_T) {
+		switch(lookahead.code) {
+		case CMT_T:
+			comment(); // consume token, skip to next lookahead
+			break;
+		case KW_T:
+			// Check if keyword == 'def'
+			if (lookahead.attribute.codeType == 12) {
+				functionDefinition();
+			}
+			break;
+		case ERR_T:
+			printError();
+			break;
+		default:
+			mainBlock(); 
+			break;
+		}
+	}
+	
+	/* Match End of File token */
+	matchToken(SEOF_T, NO_ATTR);
+	printf("%s%s\n", STR_LANGNAME, ": Program parsed");
+}
+
+/*
+***********************************************************
+* Function name: mainBlock
+* Purpose: Repeadedly call statements() until end of file is reached
+* Called functions: statements(), printf()
+* Algorithm: while loop that waits for SEOF_T
+*************************************************************
+*/
+mouse_None mainBlock(){
+	psData.parsHistogram[BNF_mainBlock]++;
+	while (lookahead.code != SEOF_T) {
+		statements();
+	}
+	printf("%s%s\n", STR_LANGNAME, ": Main Block parsed");
+}
+
+/*
+ ************************************************************
+ * Function name: statements
+ * Purpose: Repeadedly call statement() until an apropriate token isnt found
+ * Called functions: statement(), printf()
+ * Algorithm: while loop that waits for certain tokens
+ ***********************************************************
+ */
+mouse_None statements() {
+	psData.parsHistogram[BNF_statements]++;
+
+	while (lookahead.code == TAB_T || lookahead.code == MNID_T || lookahead.code == VAR_T){ // TO_DO Change this to SEOF_T?
+		statement();
+	}
+	printf("%s%s\n", STR_LANGNAME, ": Statements parsed");
+}
+
+/*
+ ************************************************************
+ * Function name: statement
+ * Purpose: Parse the correct order for certain functions
+ * Called functions: matchToken(), outputStatement(), printf(),
+ *	printError(), expression()
+ * Algorithm: Nested switch and if statements
+ ***********************************************************
+ */
+mouse_None statement() {
+	if (lookahead.code == TAB_T) {
+		matchToken(TAB_T, NO_ATTR); // TO_DO Is checking for proper indentation is out of the scope of this assignment?
+	}
+	else {
+		psData.parsHistogram[BNF_statement]++;
+		switch (lookahead.code) {
+		/*case KW_T:
+			switch (lookahead.attribute.codeType) {
+			default:
+				printError();
+			}
+			break;*/
+
+		case MNID_T:
+			if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
+				outputStatement();
+			}
+			break;
+		case VAR_T:
+			matchToken(VAR_T, NO_ATTR);
+			matchToken(COL_T, NO_ATTR);
+
+			if (lookahead.code == KW_T) {
+				if (lookahead.attribute.codeType == 0 || lookahead.attribute.codeType == 1 || lookahead.attribute.codeType == 2 || lookahead.attribute.codeType == 3) {
+					matchToken(KW_T, lookahead.attribute.codeType);
+					psData.parsHistogram[BNF_typeAnnotation]++;
+					printf("%s%s\n", STR_LANGNAME, ": Type Annotation parsed");
+				}
+				else {
+					printError();
+				}
+			}
+			psData.parsHistogram[BNF_variableDeclaration]++;
+			printf("%s%s\n", STR_LANGNAME, ": Variable Declaration parsed");
+
+			if (lookahead.attribute.relationalOperator == OP_EQ) {
+				// Declaration + Assignment
+				expression();
+				psData.parsHistogram[BNF_assignmentStatement]++;
+				printf("%s%s\n", STR_LANGNAME, ": Assignment Statement parsed");
+			}
+			psData.parsHistogram[BNF_variableInitialization]++;
+			printf("%s%s\n", STR_LANGNAME, ": Variable Initialization parsed");
+			break;
+		default:
+			printError();
+		}
+		printf("%s%s\n", STR_LANGNAME, ": Statement parsed");
+	}
+}
+
+/*
+ ***********************************************************
+ * Function name: functionDefinition
+ * Purpose: Verify pattern for defining a function
+ * Called functions: matchToken(), statements(), printf()
+ * Algorithm: Several matchToken calls followed by statements()
+ *************************************************************
+ */
+mouse_None functionDefinition() {
+	psData.parsHistogram[BNF_functionDefinition]++;
+	matchToken(KW_T, 12);
+	matchToken(MNID_T, NO_ATTR);
+	matchToken(LPR_T, NO_ATTR);
+	// Optional Parameters
+	matchToken(RPR_T, NO_ATTR);
+	matchToken(COL_T, NO_ATTR);
+	matchToken(TAB_T, NO_ATTR);
+
+	// All functionDefinition components matched
+	statements();
+
+	printf("%s%s\n", STR_LANGNAME, ": Function Definition parsed");
+}
+
+/*
+***********************************************************
+* Function name: expression()
+* Purpose: Verifys the patterns of expressions
+* Called functions: matchToken(), expression(), printf(),
+*	printError()
+* Algorithm: Nested switch and if statements
+*************************************************************
+*/
+mouse_None expression(){
+	psData.parsHistogram[BNF_expression]++;
+	switch (lookahead.code) {
+	case OP_T:
+		if (lookahead.attribute.relationalOperator == OP_EQ) {
+			matchToken(OP_T, NO_ATTR);
+
+			expression();
+
+			psData.parsHistogram[BNF_relationalOperator]++;
+			printf("%s%s\n", STR_LANGNAME, ": Relational Operator parsed");
+		}
+		break;
+	case FLT_T:
+		matchToken(FLT_T, NO_ATTR);
+
+		psData.parsHistogram[BNF_primaryExpression]++;
+		printf("%s%s\n", STR_LANGNAME, ": Primary Expression parsed");
+		break;
+	case MNID_T:
+		// TO_DO FUNCTIONCALL() || FUNCTIONCALL(EXPRESSION) If next token isnt ) recursively call expression()
+		break;
+	default:
+		printError();
+	}
+	printf("%s%s\n", STR_LANGNAME, ": Expression parsed");
+}
+
+/*
+ ************************************************************
+ * Function name: outputStatement
+ * Purpose: Verifys the patterns of print 
+ * Called functions: matchToken(), outputVariableList(), printf()
+ * Algorithm: Several matchToken calls with a outputVariableList call
+ ***********************************************************
+ */
+mouse_None outputStatement() {
+	psData.parsHistogram[BNF_outputStatement]++;
+	matchToken(MNID_T, NO_ATTR);
+	matchToken(LPR_T, NO_ATTR);
+	outputVariableList();
+	matchToken(RPR_T, NO_ATTR);
+	//matchToken(EOS_T, NO_ATTR); //  EOS_T is sofia's end of statement character (;); I commented it out but kept it incase it was needed for future reference
+	printf("%s%s\n", STR_LANGNAME, ": Output statement parsed");
+}
+
+/*
+ ************************************************************
+ * Function name: outputVariableList
+ * Purpose: Verifys the patterns of print's input variables
+ * Called functions: matchToken()
+ * Algorithm: Nested switch and if statements
+ ***********************************************************
+ */
+mouse_None outputVariableList() {
+	psData.parsHistogram[BNF_outputVariableList]++;
+	switch (lookahead.code) {
+	case STR_T:
+		matchToken(STR_T, NO_ATTR);
+		break;
+	default:
+		break;
+	}
+	printf("%s%s\n", STR_LANGNAME, ": Output variable list parsed");
+}
+
+ /*
+ ***********************************************************
+ * Function name: comment()
+ * Purpose: Checks for a comment
+ * Called functions: matchToken(), printf()
+ * Algorithm: matchToken for comment
+ *************************************************************
+ */
+mouse_None comment() {
+	psData.parsHistogram[BNF_comments]++;
+	matchToken(CMT_T, NO_ATTR);
+	printf("%s%s\n", STR_LANGNAME, ": Comment parsed");
 }

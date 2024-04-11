@@ -47,11 +47,10 @@ _______________________________________________________
 * Purpose: This file is the main header for Parser (.h)
 * Function list:
 *	startParser(), matchToken(), syncErrorHandler(),
-*	printError(), printBNFData(), codeSession(),
-*	comment(), dataSession(), optVarListDeclarations(),
-*	optionalStatements(), outputStatement() outputVariableList(),
-*	program(), statement(), statements(), statementsPrime(),
-*	TO_DO: Add more if needed
+*	printError(), printBNFData(), program(), 
+*	mainBlock(), functionDefinition(), comment(), 
+*	expression(),
+*	TO_DO: Add more as implimented
 ************************************************************
 */
 
@@ -97,7 +96,7 @@ enum KEYWORDS {
 	KW_None,		/* 06 */
 	KW_if,			/* 07 */
 	KW_elif,		/* 08 */
-	KW_else			/* 09 */
+	KW_else,		/* 09 */
 	KW_while,		/* 10 */
 	KW_for,			/* 11 */
 	KW_def,			/* 12 */
@@ -109,8 +108,8 @@ enum KEYWORDS {
 	KW_or,			/* 18 */
 };
 
-/* TO_DO: Define the number of BNF rules */
-#define NUM_BNF_RULES 12
+/* Define the number of BNF rules */
+#define NUM_BNF_RULES 38
 
 /* Parser */
 typedef struct parserData {
@@ -134,10 +133,10 @@ mouse_None printBNFData(ParserData psData);
 enum BNF_RULES {
 	BNF_error,										/* 00: Error token */
 	BNF_program, 									/* 01 */
-	BNF_functionDefinitions, 						/* 02 */
+		BNF_functionDefinitions, 						/* 02 */
 	BNF_functionDefinition, 						/* 03 */
 	BNF_mainBlock, 									/* 04 */
-	BNF_funcName, 									/* 05 */
+		BNF_funcName, 									/* 05 */
 	BNF_comments, 									/* 06 */
 	BNF_statements, 								/* 07 */
 	BNF_statement, 									/* 08 */
@@ -147,33 +146,33 @@ enum BNF_RULES {
 	BNF_assignmentStatement, 						/* 12 */
 	BNF_inputStatement, 							/* 13 */
 	BNF_outputStatement, 							/* 14 */
-	BNF_variableList, 								/* 15 */
+		BNF_variableList, 								/* 15 */
 	BNF_expression, 								/* 16 */
-	BNF_arithmeticExpression, 						/* 17 */
-	BNF_additiveArithmeticExpression, 				/* 18 */
-	BNF_multiplicativeArithmeticExpression, 		/* 19 */
-	BNF_exponentialArithmeticExpression, 			/* 20 */
+		BNF_arithmeticExpression, 						/* 17 */
+		BNF_additiveArithmeticExpression, 				/* 18 */
+		BNF_multiplicativeArithmeticExpression, 		/* 19 */
+		BNF_exponentialArithmeticExpression, 			/* 20 */
 	BNF_primaryExpression, 							/* 21 */
-	BNF_stringExpression, 							/* 22 */
-	BNF_conditionalExpression, 						/* 23 */
-	BNF_logicalExpression, 							/* 24 */
-	BNF_logicalOrExpression, 						/* 25 */
-	BNF_logicalAndExpression, 						/* 26 */
-	BNF_logicalNotExpression, 						/* 27 */
+		BNF_stringExpression, 							/* 22 */
+		BNF_conditionalExpression, 						/* 23 */
+		BNF_logicalExpression, 							/* 24 */
+		BNF_logicalOrExpression, 						/* 25 */
+		BNF_logicalAndExpression, 						/* 26 */
+		BNF_logicalNotExpression, 						/* 27 */
 	BNF_relationalExpression, 						/* 28 */
 	BNF_relationalOperator, 						/* 29 */
-	BNF_selectionStatement, 						/* 30 */
-	BNF_optionalElifStatement, 						/* 31 */
-	BNF_elifStatement, 								/* 32 */
-	BNF_optionalElseStatement, 						/* 33 */
-	BNF_iterationStatement, 						/* 34 */
-	BNF_functionCallStatement, 						/* 35 */
-	BNF_expressionList	 							/* 36 */
+		BNF_selectionStatement, 						/* 30 */
+		BNF_optionalElifStatement, 						/* 31 */
+		BNF_elifStatement, 								/* 32 */
+		BNF_optionalElseStatement, 						/* 33 */
+		BNF_iterationStatement, 						/* 34 */
+		BNF_functionCallStatement, 						/* 35 */
+		BNF_expressionList,	 							/* 36 */
+		BNF_outputVariableList							/* 37 */
 };
 
 
 static mouse_str BNFStrTable[NUM_BNF_RULES] = {
-	"BNF_error",
 	"BNF_error",									/* 00: Error token */
 	"BNF_program", 									/* 01 */
 	"BNF_functionDefinitions", 						/* 02 */
@@ -210,21 +209,19 @@ static mouse_str BNFStrTable[NUM_BNF_RULES] = {
 	"BNF_optionalElseStatement", 					/* 33 */
 	"BNF_iterationStatement", 						/* 34 */
 	"BNF_functionCallStatement", 					/* 35 */
-	"BNF_expressionList"	 						/* 36 */
-
+	"BNF_expressionList",	 						/* 36 */
+	"BNF_outputVariableList"						/* 37 */
 };
 
 /* TO_DO: Place ALL non-terminal function declarations */
-mouse_None codeSession();
+mouse_None program();
+mouse_None mainBlock();
+mouse_None functionDefinition();
 mouse_None comment();
-mouse_None dataSession();
-mouse_None optVarListDeclarations();
-mouse_None optionalStatements();
+mouse_None statements();
+mouse_None statement();
 mouse_None outputStatement();
 mouse_None outputVariableList();
-mouse_None program();
-mouse_None statement();
-mouse_None statements();
-mouse_None statementsPrime();
+mouse_None expression();
 
 #endif
