@@ -154,18 +154,18 @@ enum BNF_RULES {
 	BNF_exponentialArithmeticExpression, 			/* 20 */
 	BNF_primaryExpression, 							/* 21 */
 	BNF_stringExpression, 							/* 22 */
-		BNF_conditionalExpression, 						/* 23 */
-		BNF_logicalExpression, 							/* 24 */
-		BNF_logicalOrExpression, 						/* 25 */
-		BNF_logicalAndExpression, 						/* 26 */
-		BNF_logicalNotExpression, 						/* 27 */
-	BNF_relationalExpression, 						/* 28 */
-	BNF_relationalOperator, 						/* 29 */
-		BNF_selectionStatement, 						/* 30 */
-		BNF_optionalElifStatement, 						/* 31 */
-		BNF_elifStatement, 								/* 32 */
-		BNF_optionalElseStatement, 						/* 33 */
-		BNF_iterationStatement, 						/* 34 */
+	BNF_conditionalExpression, 						/* 23 */
+	BNF_logicalExpression, 							/* 24 */
+	BNF_logicalIsExpression, 						/* 25 */
+	BNF_logicalOrExpression, 						/* 26 */
+	BNF_logicalAndExpression, 						/* 27 */
+	BNF_logicalNotExpression, 						/* 28 */
+	BNF_relationalExpression, 						/* 29 */
+	BNF_relationalOperator, 						/* 30 */
+	BNF_selectionStatement, 						/* 31 */
+	BNF_optionalElifStatement, 						/* 32 */
+	BNF_optionalElseStatement, 						/* 33 */
+	BNF_iterationStatement, 						/* 34 */
 	BNF_functionCallStatement, 						/* 35 */
 	BNF_expressionList,	 							/* 36 */
 	BNF_outputVariable								/* 37 */
@@ -198,14 +198,14 @@ static mouse_str BNFStrTable[NUM_BNF_RULES] = {
 	"BNF_stringExpression", 						/* 22 */
 	"BNF_conditionalExpression", 					/* 23 */
 	"BNF_logicalExpression", 						/* 24 */
-	"BNF_logicalOrExpression", 						/* 25 */
-	"BNF_logicalAndExpression", 					/* 26 */
-	"BNF_logicalNotExpression", 					/* 27 */
-	"BNF_relationalExpression", 					/* 28 */
-	"BNF_relationalOperator", 						/* 29 */
-	"BNF_selectionStatement", 						/* 30 */
-	"BNF_optionalElifStatement", 					/* 31 */
-	"BNF_elifStatement", 							/* 32 */
+	"BNF_logicalIsExpression",						/* 25 */
+	"BNF_logicalOrExpression", 						/* 26 */
+	"BNF_logicalAndExpression", 					/* 27 */
+	"BNF_logicalNotExpression", 					/* 28 */
+	"BNF_relationalExpression", 					/* 29 */
+	"BNF_relationalOperator", 						/* 30 */
+	"BNF_selectionStatement", 						/* 31 */
+	"BNF_optionalElifStatement", 					/* 32 */
 	"BNF_optionalElseStatement", 					/* 33 */
 	"BNF_iterationStatement", 						/* 34 */
 	"BNF_functionCallStatement", 					/* 35 */

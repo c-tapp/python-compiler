@@ -6,5 +6,4 @@ factorial: int = 1
 for (i = 0, i < num, i++)
 	factorial = factorial * i
 
-# Printing the calculated number
 print("The factorial of " + num + " is " + factorial)
