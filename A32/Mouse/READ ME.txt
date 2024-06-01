@@ -1,8 +1,0 @@
-.bat file is:
-
-out -> build -> x64-debug -> A32.bat
-
-Github push code is: 
-
-
-Image is Github_A32_Henry812Colin946.png

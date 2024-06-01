@@ -1,8 +1,0 @@
-.bat file is:
-
-out -> build -> x64-debug -> A12.bat
-
-Github push code is: 
-2304ee0a9e66f8c5880657038f793b5153797c26
-
-Image is Github_A12_Henry812Colin946.png

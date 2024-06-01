@@ -1,0 +1,3 @@
+'.bat' file path:
+
+\out\build\x64-debug\A32.bat
